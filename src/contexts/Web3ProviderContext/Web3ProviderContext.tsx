@@ -5,6 +5,7 @@ import {
   ProviderInstance,
   ProviderProxyConstructor,
   PROVIDERS,
+  RawProvider,
 } from '@distributedlab/w3p'
 import {
   createContext,
@@ -13,10 +14,14 @@ import {
   memo,
   useCallback,
   useMemo,
+  useState,
 } from 'react'
 import { useLocalStorage } from 'react-use'
 
-import { useProvider } from '@/hooks'
+import { useNotification, useProvider } from '@/hooks'
+
+import { EXTERNAL_PROVIDERS } from './enums'
+import { WalletConnectEvmProvider } from './providers'
 
 interface Web3ProviderContextValue {
   provider?: ReturnType<typeof useProvider>
@@ -48,19 +53,20 @@ export const web3ProviderContext = createContext<Web3ProviderContextValue>({
 
 type Props = HTMLAttributes<HTMLDivElement>
 
-type SUPPORTED_PROVIDERS = PROVIDERS
+export type SUPPORTED_PROVIDERS = EXTERNAL_PROVIDERS | PROVIDERS
 
 const SUPPORTED_PROVIDERS_MAP: {
   [key in SUPPORTED_PROVIDERS]?: ProviderProxyConstructor
 } = {
   [PROVIDERS.Metamask]: MetamaskProvider,
+  [EXTERNAL_PROVIDERS.WalletConnect]: WalletConnectEvmProvider,
 }
 
 const STORAGE_KEY = 'web3-provider'
 
 const Web3ProviderContextProvider: FC<Props> = ({ children }) => {
   const providerDetector = useMemo(
-    () => new ProviderDetector<SUPPORTED_PROVIDERS>(),
+    () => new ProviderDetector<EXTERNAL_PROVIDERS>(),
     [],
   )
 
@@ -70,9 +76,32 @@ const Web3ProviderContextProvider: FC<Props> = ({ children }) => {
     providerType: undefined,
   })
 
+  const [currentTxToastId, setCurrentTxToastId] = useState<string | number>()
+  const { showToast, removeToast } = useNotification()
+
   const provider = useProvider()
 
   const isValidChain = useMemo(() => true, [])
+
+  const handleTxSent = useCallback(() => {
+    setCurrentTxToastId(
+      showToast('info', {
+        title: 'Transaction sent',
+        message: 'Waiting for confirmation...',
+      }),
+    )
+  }, [showToast])
+
+  const handleTxConfirmed = useCallback(() => {
+    if (currentTxToastId) {
+      removeToast(currentTxToastId)
+    }
+
+    showToast('success', {
+      title: `Success`,
+      message: 'Transaction confirmed',
+    })
+  }, [currentTxToastId, removeToast, showToast])
 
   const init = useCallback(
     async (providerType?: SUPPORTED_PROVIDERS) => {
@@ -83,6 +112,11 @@ const Web3ProviderContextProvider: FC<Props> = ({ children }) => {
 
         await providerDetector.init()
 
+        await providerDetector.addProvider({
+          name: EXTERNAL_PROVIDERS.WalletConnect,
+          instance: {} as RawProvider,
+        })
+
         // TODO: fill config and set chains details
         Provider.setChainsDetails({})
 
@@ -90,27 +124,29 @@ const Web3ProviderContextProvider: FC<Props> = ({ children }) => {
 
         if (!currentProviderType) return
 
-        await provider.init(
+        const initializedProvider = await provider.init(
           SUPPORTED_PROVIDERS_MAP[
             currentProviderType
           ] as ProviderProxyConstructor,
           {
             providerDetector,
-            listeners: {},
+            listeners: {
+              onTxSent: handleTxSent,
+              onTxConfirmed: handleTxConfirmed,
+            },
           },
         )
 
-        // TODO: because of setState in useProvider,
-        //  in this step provider still undefined
-
-        if (!provider.isConnected) {
-          await provider?.connect?.()
+        if (!initializedProvider.isConnected) {
+          await initializedProvider?.connect?.()
         }
       } catch (error) {
         removeStorageState()
       }
     },
     [
+      handleTxConfirmed,
+      handleTxSent,
       provider,
       providerDetector,
       removeStorageState,
@@ -125,16 +161,20 @@ const Web3ProviderContextProvider: FC<Props> = ({ children }) => {
     providerDetector.addProvider(provider)
   }
 
+  const handleDisconnect = useCallback(() => {
+    removeStorageState()
+
+    init()
+  }, [init, removeStorageState])
+
   const disconnect = useCallback(async () => {
     try {
       await provider?.disconnect?.()
       // eslint-disable-next-line no-empty
     } catch (error) {}
 
-    removeStorageState()
-
-    await init()
-  }, [init, provider, removeStorageState])
+    handleDisconnect()
+  }, [handleDisconnect, provider])
 
   return (
     <web3ProviderContext.Provider

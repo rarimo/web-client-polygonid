@@ -1,6 +1,5 @@
 import { NodeGlobalsPolyfillPlugin } from '@esbuild-plugins/node-globals-polyfill'
 import { NodeModulesPolyfillPlugin } from '@esbuild-plugins/node-modules-polyfill'
-import { viteCommonjs } from '@originjs/vite-plugin-commonjs'
 import react from '@vitejs/plugin-react'
 import * as fs from 'fs'
 import * as path from 'path'
@@ -34,12 +33,14 @@ export default defineConfig(({ mode }) => {
       : {}),
     publicDir: 'static',
     plugins: [
-      // viteCommonjs(),
       react(),
 
       tsconfigPaths(),
       createSvgIconsPlugin({
-        iconDirs: [path.resolve(process.cwd(), 'src/assets/icons')],
+        iconDirs: [
+          path.resolve(process.cwd(), 'src/assets/icons'),
+          path.resolve(process.cwd(), 'static/images/providers'),
+        ],
         symbolId: '[name]',
       }),
       checker({
