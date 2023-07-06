@@ -9,7 +9,7 @@ import { abbrCenter, copyToClipboard } from '@/helpers'
 type Props = HTMLAttributes<HTMLDivElement>
 
 const AuthSuccess: FC<Props> = () => {
-  const [isNftMinted] = useState(false)
+  const [isNftMinted] = useState(true)
 
   return (
     <div className='auth-success'>

@@ -17,7 +17,7 @@
     "lint:scripts": "eslint \"{src,config}/**/*.{js,ts,jsx,tsx}\" --cache --fix --max-warnings=0",
     "preview": "vite preview",
     "rsc": "node scripts/release-sanity-check.mjs",
-    "generate-ether-types": "typechain --target=ethers-v5 './abi/**/*.json' --out-dir src/types/contracts"
+    "generate-ether-types": "typechain --target=ethers-v5 'abis/**/*.json' --out-dir src/types/contracts"
   },
   "dependencies": {
     "@distributedlab/jac": "^0.2.0-rc.19",
@@ -48,6 +48,7 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-i18next": "^12.1.4",
+    "react-qr-code": "^2.0.11",
     "react-router-dom": "^6.6.2",
     "react-toastify": "^9.0.5",
     "react-use": "^17.4.0",

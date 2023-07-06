@@ -12,11 +12,9 @@ import { RoutesPaths } from '@/enums'
 import { AuthLayout } from '@/layouts'
 
 export const AppRoutes = () => {
-  const AuthProviders = lazy(() => import('@/pages/AuthProviders'))
-  const AuthPreview = lazy(() => import('@/pages/AuthPreview'))
-  const AuthConfirmation = lazy(() => import('@/pages/AuthConfirmation'))
+  const AuthLogin = lazy(() => import('@/pages/AuthLogin/AuthLogin'))
+  const AuthProof = lazy(() => import('@/pages/AuthProof/AuthProof'))
   const AuthSuccess = lazy(() => import('@/pages/AuthSuccess'))
-  const Profile = lazy(() => import('@/pages/Profile'))
 
   const router = createBrowserRouter([
     {
@@ -38,34 +36,30 @@ export const AppRoutes = () => {
           children: [
             {
               index: true,
-              path: RoutesPaths.authProviders,
-              element: <AuthProviders />,
+              path: RoutesPaths.authLogin,
+              element: <AuthLogin />,
             },
             {
-              path: RoutesPaths.authPreview,
-              element: <AuthPreview />,
-            },
-            {
-              path: RoutesPaths.authConfirmation,
-              element: <AuthConfirmation />,
+              path: RoutesPaths.authProof,
+              element: <AuthProof />,
             },
             {
               path: RoutesPaths.authSuccess,
               element: <AuthSuccess />,
             },
+            {
+              path: '',
+              element: <Navigate replace to={RoutesPaths.authLogin} />,
+            },
           ],
         },
         {
-          path: RoutesPaths.profile,
-          element: <Profile />,
-        },
-        {
           path: '/',
-          element: <Navigate replace to={RoutesPaths.authProviders} />,
+          element: <Navigate replace to={RoutesPaths.authLogin} />,
         },
         {
           path: '*',
-          element: <Navigate replace to={RoutesPaths.authProviders} />,
+          element: <Navigate replace to={RoutesPaths.authLogin} />,
         },
       ],
     },

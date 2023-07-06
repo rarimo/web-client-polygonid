@@ -12,38 +12,6 @@ const _abi = [
     inputs: [
       {
         indexed: true,
-        internalType: "uint256",
-        name: "identityId",
-        type: "uint256",
-      },
-      {
-        indexed: false,
-        internalType: "address",
-        name: "senderAddr",
-        type: "address",
-      },
-    ],
-    name: "IdentityProved",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: false,
-        internalType: "uint8",
-        name: "version",
-        type: "uint8",
-      },
-    ],
-    name: "Initialized",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
         internalType: "address",
         name: "previousOwner",
         type: "address",
@@ -59,27 +27,84 @@ const _abi = [
     type: "event",
   },
   {
+    anonymous: false,
     inputs: [
       {
-        internalType: "contract IZKPQueriesStorage",
-        name: "zkpQueriesStorage_",
+        indexed: true,
+        internalType: "uint256",
+        name: "userId",
+        type: "uint256",
+      },
+      {
+        indexed: true,
+        internalType: "address",
+        name: "userAddr",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "tokenId",
+        type: "uint256",
+      },
+    ],
+    name: "Verified",
+    type: "event",
+  },
+  {
+    inputs: [],
+    name: "AGE_VERIFY_REQUEST_ID",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "",
         type: "address",
       },
     ],
-    name: "__DemoVerifier_init",
-    outputs: [],
-    stateMutability: "nonpayable",
+    name: "addressToUserId",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "getSupportedRequests",
+    outputs: [
+      {
+        internalType: "uint64[]",
+        name: "arr",
+        type: "uint64[]",
+      },
+    ],
+    stateMutability: "view",
     type: "function",
   },
   {
     inputs: [
       {
         internalType: "uint256",
-        name: "identityId_",
+        name: "userId_",
         type: "uint256",
       },
     ],
-    name: "getIdentityProofInfo",
+    name: "getVerificationInfo",
     outputs: [
       {
         components: [
@@ -89,12 +114,63 @@ const _abi = [
             type: "address",
           },
           {
-            internalType: "bool",
-            name: "isProved",
-            type: "bool",
+            internalType: "uint256",
+            name: "mintedTokenId",
+            type: "uint256",
           },
         ],
-        internalType: "struct IDemoVerifier.IdentityProofInfo",
+        internalType: "struct IDemoVerifier.VerificationInfo",
+        name: "",
+        type: "tuple",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint64",
+        name: "requestId",
+        type: "uint64",
+      },
+    ],
+    name: "getZKPRequest",
+    outputs: [
+      {
+        components: [
+          {
+            internalType: "uint256",
+            name: "schema",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "claimPathKey",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "operator",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256[]",
+            name: "value",
+            type: "uint256[]",
+          },
+          {
+            internalType: "uint256",
+            name: "queryHash",
+            type: "uint256",
+          },
+          {
+            internalType: "string",
+            name: "circuitId",
+            type: "string",
+          },
+        ],
+        internalType: "struct ICircuitValidator.CircuitQuery",
         name: "",
         type: "tuple",
       },
@@ -106,11 +182,11 @@ const _abi = [
     inputs: [
       {
         internalType: "uint256",
-        name: "identityId_",
+        name: "userId_",
         type: "uint256",
       },
     ],
-    name: "isIdentityProved",
+    name: "isUserVerified",
     outputs: [
       {
         internalType: "bool",
@@ -137,29 +213,25 @@ const _abi = [
   {
     inputs: [
       {
-        internalType: "uint256[]",
-        name: "inputs_",
-        type: "uint256[]",
+        internalType: "address",
+        name: "",
+        type: "address",
       },
       {
-        internalType: "uint256[2]",
-        name: "a_",
-        type: "uint256[2]",
-      },
-      {
-        internalType: "uint256[2][2]",
-        name: "b_",
-        type: "uint256[2][2]",
-      },
-      {
-        internalType: "uint256[2]",
-        name: "c_",
-        type: "uint256[2]",
+        internalType: "uint64",
+        name: "",
+        type: "uint64",
       },
     ],
-    name: "proveIdentity",
-    outputs: [],
-    stateMutability: "nonpayable",
+    name: "proofs",
+    outputs: [
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
+      },
+    ],
+    stateMutability: "view",
     type: "function",
   },
   {
@@ -172,13 +244,216 @@ const _abi = [
   {
     inputs: [
       {
-        internalType: "contract IZKPQueriesStorage",
-        name: "newZKPQueriesStorage_",
+        internalType: "uint64",
+        name: "",
+        type: "uint64",
+      },
+    ],
+    name: "requestQueries",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "schema",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "claimPathKey",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "operator",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "queryHash",
+        type: "uint256",
+      },
+      {
+        internalType: "string",
+        name: "circuitId",
+        type: "string",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint64",
+        name: "",
+        type: "uint64",
+      },
+    ],
+    name: "requestValidators",
+    outputs: [
+      {
+        internalType: "contract ICircuitValidator",
+        name: "",
         type: "address",
       },
     ],
-    name: "setZKPQueriesStorage",
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "sbtContract",
+    outputs: [
+      {
+        internalType: "contract IDemoSBT",
+        name: "",
+        type: "address",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "sbtContract_",
+        type: "address",
+      },
+    ],
+    name: "setSBTContract",
     outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint64",
+        name: "requestId",
+        type: "uint64",
+      },
+      {
+        internalType: "contract ICircuitValidator",
+        name: "validator",
+        type: "address",
+      },
+      {
+        internalType: "uint256",
+        name: "schema",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "claimPathKey",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "operator",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256[]",
+        name: "value",
+        type: "uint256[]",
+      },
+    ],
+    name: "setZKPRequest",
+    outputs: [
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
+      },
+    ],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint64",
+        name: "requestId",
+        type: "uint64",
+      },
+      {
+        internalType: "contract ICircuitValidator",
+        name: "validator",
+        type: "address",
+      },
+      {
+        internalType: "uint256",
+        name: "schema",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "claimPathKey",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "operator",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256[]",
+        name: "value",
+        type: "uint256[]",
+      },
+      {
+        internalType: "uint256",
+        name: "queryHash",
+        type: "uint256",
+      },
+    ],
+    name: "setZKPRequestRaw",
+    outputs: [
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
+      },
+    ],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint64",
+        name: "requestId",
+        type: "uint64",
+      },
+      {
+        internalType: "uint256[]",
+        name: "inputs",
+        type: "uint256[]",
+      },
+      {
+        internalType: "uint256[2]",
+        name: "a",
+        type: "uint256[2]",
+      },
+      {
+        internalType: "uint256[2][2]",
+        name: "b",
+        type: "uint256[2][2]",
+      },
+      {
+        internalType: "uint256[2]",
+        name: "c",
+        type: "uint256[2]",
+      },
+    ],
+    name: "submitZKPResponse",
+    outputs: [
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
+      },
+    ],
     stateMutability: "nonpayable",
     type: "function",
   },
@@ -193,19 +468,6 @@ const _abi = [
     name: "transferOwnership",
     outputs: [],
     stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "zkpQueriesStorage",
-    outputs: [
-      {
-        internalType: "contract IZKPQueriesStorage",
-        name: "",
-        type: "address",
-      },
-    ],
-    stateMutability: "view",
     type: "function",
   },
 ] as const;
