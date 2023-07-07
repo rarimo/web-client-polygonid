@@ -8,6 +8,7 @@ import packageJson from '../package.json'
 export enum SUPPORTED_CHAINS {
   SEPOLIA = 'SEPOLIA',
   POLYGON = 'POLYGON',
+  POLYGON_TESTNET = 'POLYGON_TESTNET',
   GOERLI = 'GOERLI',
 }
 
@@ -19,7 +20,7 @@ export const SUPPORTED_CHAINS_DETAILS: Record<SUPPORTED_CHAINS, Chain> = {
     explorerUrl: 'https://sepolia.etherscan.io',
     token: {
       name: 'Sepolia',
-      symbol: 'Sep',
+      symbol: 'Sepolia',
       decimals: 18,
     },
     type: CHAIN_TYPES.EVM,
@@ -27,6 +28,19 @@ export const SUPPORTED_CHAINS_DETAILS: Record<SUPPORTED_CHAINS, Chain> = {
   },
   // FIXME: use the correct chain details for polygon
   [SUPPORTED_CHAINS.POLYGON]: {
+    id: '137',
+    name: 'Polygon',
+    rpcUrl: 'https://polygon-rpc.com/',
+    explorerUrl: 'https://polygonscan.com/',
+    token: {
+      name: 'MATIC',
+      symbol: 'MATIC',
+      decimals: 18,
+    },
+    type: CHAIN_TYPES.EVM,
+    icon: '',
+  },
+  [SUPPORTED_CHAINS.POLYGON_TESTNET]: {
     id: '80001',
     name: 'Mumbai',
     rpcUrl: 'https://endpoints.omniatech.io/v1/matic/mumbai/public',
@@ -61,6 +75,8 @@ export const config = {
   APP_NAME: import.meta.env.VITE_APP_NAME,
   LOG_LEVEL: 'trace' as LogLevelDesc,
   BUILD_VERSION: packageJson.version || import.meta.env.VITE_APP_BUILD_VERSION,
+
+  WALLET_CONNECT_PROJECT_ID: import.meta.env.VITE_WALLET_CONNECT_PROJECT_ID,
 
   AUTH_BJJ_CREDENTIAL_HASH: import.meta.env.VITE_AUTH_BJJ_CREDENTIAL_HASH,
 

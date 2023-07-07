@@ -1,6 +1,7 @@
 import { createContext, FC, HTMLAttributes, useCallback, useMemo } from 'react'
 
 import { useWeb3Context } from '@/contexts'
+import { useDemoVerifierContract } from '@/hooks/contracts'
 
 interface ZkpContextValue {
   startListeningProve: () => Promise<void>
@@ -19,6 +20,10 @@ type Props = HTMLAttributes<HTMLDivElement>
 const ZkpContextProvider: FC<Props> = ({ children, ...rest }) => {
   const { provider } = useWeb3Context()
 
+  const { listenVerifiedUsers } = useDemoVerifierContract(
+    '0x0F08e8EA245E63F2090Bf3fF3772402Da9c047ee',
+  )
+
   const proveRequest = useMemo(
     () => ({
       id: '7f38a193-0918-4a48-9fac-36adfdb8b542',
@@ -28,10 +33,10 @@ const ZkpContextProvider: FC<Props> = ({ children, ...rest }) => {
       body: {
         reason: 'airdrop participation',
         transaction_data: {
-          contract_address: '0x5E1cf3983DD996BF0299e1C5aF7e6bD2005Ee309',
+          contract_address: '0x0F08e8EA245E63F2090Bf3fF3772402Da9c047ee',
           method_id: 'b68967e2',
-          chain_id: 35443,
-          network: 'qtestnet',
+          chain_id: 80001,
+          network: 'mumbai',
         },
         scope: [
           {
@@ -40,13 +45,13 @@ const ZkpContextProvider: FC<Props> = ({ children, ...rest }) => {
             query: {
               allowedIssuers: ['*'],
               context:
-                'https://raw.githubusercontent.com/omegatymbjiep/schemas/main/json-ld/NaturalPerson.json-ld',
+                'https://raw.githubusercontent.com/iden3/claim-schema-vocab/main/schemas/json-ld/kyc-v3.json-ld',
               credentialSubject: {
-                isNatural: {
-                  $eq: 1,
+                birthday: {
+                  $lt: 20020101,
                 },
               },
-              type: 'NaturalPerson',
+              type: 'KYCAgeCredential',
             },
           },
         ],
@@ -56,8 +61,8 @@ const ZkpContextProvider: FC<Props> = ({ children, ...rest }) => {
   )
 
   const startListeningProve = useCallback(async () => {
-    // empty
-  }, [])
+    await listenVerifiedUsers(provider?.address)
+  }, [listenVerifiedUsers, provider?.address])
 
   return (
     <zkpContext.Provider

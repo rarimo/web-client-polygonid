@@ -12,7 +12,7 @@ import { ErrorHandler } from '@/helpers'
 type Props = HTMLAttributes<HTMLDivElement>
 
 const AuthLogin: FC<Props> = () => {
-  const { init } = useWeb3Context()
+  const { init, provider } = useWeb3Context()
   const { startListeningProve } = useZkpContext()
 
   const navigate = useNavigate()
@@ -21,11 +21,10 @@ const AuthLogin: FC<Props> = () => {
     try {
       await init(EXTERNAL_PROVIDERS.WalletConnect)
       await startListeningProve()
-      navigate(RoutesPaths.authProof)
     } catch (error) {
       ErrorHandler.process(error)
     }
-  }, [init, navigate, startListeningProve])
+  }, [init, startListeningProve])
 
   return (
     <div className='auth-login'>
@@ -34,7 +33,12 @@ const AuthLogin: FC<Props> = () => {
         <span className='auth-login__header-subtitle'>{`Connect Your Wallet`}</span>
       </div>
 
-      <AppButton text={`Connect Wallet`} onClick={connect} />
+      <AppButton
+        text={provider?.address || `Connect Wallet`}
+        onClick={
+          provider?.address ? () => navigate(RoutesPaths.authProof) : connect
+        }
+      />
     </div>
   )
 }

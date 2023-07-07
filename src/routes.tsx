@@ -12,13 +12,12 @@ import { RoutesPaths } from '@/enums'
 import { AuthLayout } from '@/layouts'
 
 export const AppRoutes = () => {
-  const AuthLogin = lazy(() => import('@/pages/AuthLogin/AuthLogin'))
-  const AuthProof = lazy(() => import('@/pages/AuthProof/AuthProof'))
+  const AuthLogin = lazy(() => import('@/pages/AuthLogin'))
+  const AuthProof = lazy(() => import('@/pages/AuthProof'))
   const AuthSuccess = lazy(() => import('@/pages/AuthSuccess'))
 
   const router = createBrowserRouter([
     {
-      path: RoutesPaths.app,
       element: (
         <Suspense fallback={<></>}>
           <AppNavbar />
@@ -32,7 +31,11 @@ export const AppRoutes = () => {
       children: [
         {
           path: RoutesPaths.auth,
-          element: <AuthLayout />,
+          element: (
+            <AuthLayout>
+              <Outlet />
+            </AuthLayout>
+          ),
           children: [
             {
               index: true,
