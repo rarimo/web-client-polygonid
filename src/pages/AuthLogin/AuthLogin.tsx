@@ -4,7 +4,7 @@ import { FC, HTMLAttributes, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import { AppButton } from '@/common'
-import { useWeb3Context, useZkpContext } from '@/contexts'
+import { useWeb3Context } from '@/contexts'
 import { EXTERNAL_PROVIDERS } from '@/contexts/Web3ProviderContext/enums'
 import { RoutesPaths } from '@/enums'
 import { ErrorHandler } from '@/helpers'
@@ -12,19 +12,19 @@ import { ErrorHandler } from '@/helpers'
 type Props = HTMLAttributes<HTMLDivElement>
 
 const AuthLogin: FC<Props> = () => {
-  const { init, provider } = useWeb3Context()
-  const { startListeningProve } = useZkpContext()
+  const { init } = useWeb3Context()
 
   const navigate = useNavigate()
 
   const connect = useCallback(async () => {
     try {
       await init(EXTERNAL_PROVIDERS.WalletConnect)
-      await startListeningProve()
+
+      navigate(RoutesPaths.authProof)
     } catch (error) {
       ErrorHandler.process(error)
     }
-  }, [init, startListeningProve])
+  }, [init, navigate])
 
   return (
     <div className='auth-login'>
@@ -33,12 +33,7 @@ const AuthLogin: FC<Props> = () => {
         <span className='auth-login__header-subtitle'>{`Connect Your Wallet`}</span>
       </div>
 
-      <AppButton
-        text={provider?.address || `Connect Wallet`}
-        onClick={
-          provider?.address ? () => navigate(RoutesPaths.authProof) : connect
-        }
-      />
+      <AppButton text={`Connect Wallet`} onClick={connect} />
     </div>
   )
 }

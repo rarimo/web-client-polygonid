@@ -2,4 +2,5 @@
 /* tslint:disable */
 /* eslint-disable */
 export { DemoVerifier__factory } from "./DemoVerifier__factory";
+export { MockVerifier__factory } from "./MockVerifier__factory";
 export { ZKPQueriesStorage__factory } from "./ZKPQueriesStorage__factory";

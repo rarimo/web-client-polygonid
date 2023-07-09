@@ -1,8 +1,8 @@
 export enum RoutesPaths {
   app = '/',
 
-  auth = '/auth',
-  authLogin = '/auth/login',
-  authProof = '/auth/proof',
-  authSuccess = '/auth/success',
+  // auth = '/auth',
+  authLogin = '/',
+  authProof = '/proof',
+  authSuccess = '/success',
 }
