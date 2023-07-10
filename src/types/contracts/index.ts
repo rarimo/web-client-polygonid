@@ -2,9 +2,7 @@
 /* tslint:disable */
 /* eslint-disable */
 export type { DemoVerifier } from "./DemoVerifier";
-export type { MockVerifier } from "./MockVerifier";
 export type { ZKPQueriesStorage } from "./ZKPQueriesStorage";
 export * as factories from "./factories";
 export { DemoVerifier__factory } from "./factories/DemoVerifier__factory";
-export { MockVerifier__factory } from "./factories/MockVerifier__factory";
 export { ZKPQueriesStorage__factory } from "./factories/ZKPQueriesStorage__factory";

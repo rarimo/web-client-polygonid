@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom'
 import { v4 as uuidv4 } from 'uuid'
 
 import { api } from '@/api'
+import { useWeb3Context } from '@/contexts'
 import { RoutesPaths } from '@/enums'
 import { sleep } from '@/helpers'
 
@@ -29,11 +30,12 @@ type Props = HTMLAttributes<HTMLDivElement>
 const claimTypesMap: Record<string, unknown> = {
   KYCAgeCredential: {
     id: 1,
-    circuitId: 'credentialAtomicQuerySigV2',
+    // FIXME: replace with credentialAtomicQueryMTPV2OnChain
+    circuitId: 'credentialAtomicQuerySigV2OnChain',
     query: {
       allowedIssuers: ['*'],
       context:
-        'https://raw.githubusercontent.com/iden3/claim-schema-vocab/main/schemas/json-ld/kyc-v3.json-ld',
+        'https://raw.githubusercontent.com/iden3/claim-schema-vocab/main/schemas/json-ld/kyc-v4.jsonld',
       credentialSubject: {
         birthday: {
           $lt: 20000101,
@@ -46,11 +48,18 @@ const claimTypesMap: Record<string, unknown> = {
 
 export function createAuthorizationRequest(
   reason: string,
+  message: string,
   sender: string,
   callbackUrl: string,
 ) {
-  return createAuthorizationRequestWithMessage(reason, '', sender, callbackUrl)
+  return createAuthorizationRequestWithMessage(
+    reason,
+    message,
+    sender,
+    callbackUrl,
+  )
 }
+
 export function createAuthorizationRequestWithMessage(
   reason: string,
   message: string,
@@ -66,7 +75,7 @@ export function createAuthorizationRequestWithMessage(
     type: 'https://iden3-communication.io/authorization/1.0/request',
     body: {
       reason: reason,
-      // message: message,
+      message: message,
       callbackUrl: callbackUrl,
       scope: [],
     },
@@ -76,18 +85,14 @@ export function createAuthorizationRequestWithMessage(
 const ZkpContextProvider: FC<Props> = ({ children, ...rest }) => {
   const navigate = useNavigate()
 
-  // const { provider } = useWeb3Context()
-  //
-  // const { listenVerifiedUsers } = useMockVerifierContract(
-  //   '0x12D0e421d5FFd323b6B71835618D3a5eB17399Fa',
-  // )
-
   const [jwzToken, setJwzToken] = useState<Token>()
   const [proveRequest, setProveRequest] = useState('')
   const [svcVerificationRequest, setSvcVerificationRequest] = useState<{
     verification_id: string
     jwt: string
   }>()
+
+  const { provider } = useWeb3Context()
 
   // const startListeningVerify = useCallback(async () => {
   //   await listenVerifiedUsers(provider?.address, () => {
@@ -147,13 +152,16 @@ const ZkpContextProvider: FC<Props> = ({ children, ...rest }) => {
   )
 
   const createProveRequest = useCallback(async () => {
+    if (!provider?.address) return
+
     const _svcVerificationRequest = await createVerificationRequest()
     setSvcVerificationRequest(_svcVerificationRequest)
 
     const authorizationRequest = createAuthorizationRequest(
-      'lorem ipsum',
-      'did:polygonid:polygon:mumbai:2qDyy1kEo2AYcP3RT4XGea7BtxsY285szg6yP9SPrs',
-      `${'https://9afe-62-80-164-77.eu.ngrok.io'}/integrations/verify-proxy/v1/public/verify/callback/${
+      'SBT airdrop',
+      String(provider?.address),
+      'did:polygonid:polygon:mumbai:2qDpUjL74PwJxkLg1cDhFzCEx8887CNHC3GD91EGny',
+      `${'https://4f60-46-211-118-104.eu.ngrok.io'}/integrations/verify-proxy/v1/public/verify/callback/${
         _svcVerificationRequest.verification_id
       }`,
     )
@@ -174,7 +182,7 @@ const ZkpContextProvider: FC<Props> = ({ children, ...rest }) => {
       _svcVerificationRequest.jwt,
       _svcVerificationRequest.verification_id,
     )
-  }, [createVerificationRequest, startListeningProve])
+  }, [createVerificationRequest, provider?.address, startListeningProve])
 
   return (
     <zkpContext.Provider

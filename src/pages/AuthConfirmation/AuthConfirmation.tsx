@@ -7,6 +7,7 @@ import {
   SUPPORTED_CHAINS_DETAILS,
 } from '@config'
 import { errors, PROVIDERS } from '@distributedlab/w3p'
+import { ZKProof } from '@iden3/js-jwz'
 import { FC, HTMLAttributes, useCallback, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
@@ -70,21 +71,24 @@ const AuthConfirmation: FC<Props> = () => {
     try {
       if (!jwzToken) throw new TypeError('ZKP is not defined')
 
+      const zkProof = JSON.parse(jwzToken.getPayload()).body.scope[0] as ZKProof
+
+      console.log('jwzToken', jwzToken)
+      console.log('zkProof', zkProof)
+      console.log(
+        'JSON.parse(jwzToken.getPayload())',
+        JSON.parse(jwzToken.getPayload()),
+      )
+
       const txBody = getProveIdentityTxBody(
         '1',
-        jwzToken.zkProof.pub_signals.map(el => BigInt(el)),
-        [jwzToken.zkProof.proof.pi_a[0], jwzToken.zkProof.proof.pi_a[1]],
+        zkProof.pub_signals.map(el => BigInt(el)),
+        [zkProof.proof.pi_a[0], zkProof.proof.pi_a[1]],
         [
-          [
-            jwzToken.zkProof.proof.pi_b[0][1],
-            jwzToken.zkProof.proof.pi_b[0][0],
-          ],
-          [
-            jwzToken.zkProof.proof.pi_b[1][1],
-            jwzToken.zkProof.proof.pi_b[1][0],
-          ],
+          [zkProof.proof.pi_b[0][1], zkProof.proof.pi_b[0][0]],
+          [zkProof.proof.pi_b[1][1], zkProof.proof.pi_b[1][0]],
         ],
-        [jwzToken.zkProof.proof.pi_c[0], jwzToken.zkProof.proof.pi_c[1]],
+        [zkProof.proof.pi_c[0], zkProof.proof.pi_c[1]],
       )
 
       await provider?.signAndSendTx({

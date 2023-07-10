@@ -68,7 +68,7 @@ export const SUPPORTED_CHAINS_DETAILS: Record<SUPPORTED_CHAINS, Chain> = {
   },
 }
 
-export const DEFAULT_CHAIN = SUPPORTED_CHAINS.SEPOLIA
+export const DEFAULT_CHAIN = SUPPORTED_CHAINS.POLYGON_TESTNET
 
 export const config = {
   API_URL: import.meta.env.VITE_API_URL,
