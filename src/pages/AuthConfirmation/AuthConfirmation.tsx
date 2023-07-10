@@ -25,9 +25,7 @@ const AuthConfirmation: FC<Props> = () => {
 
   const { jwzToken } = useZkpContext()
   const { provider } = useWeb3Context()
-  const { getProveIdentityTxBody } = useDemoVerifierContract(
-    config?.[`DEMO_VERIFIER_CONTRACT_ADDRESS_${DEFAULT_CHAIN}`],
-  )
+  const { getProveIdentityTxBody } = useDemoVerifierContract()
 
   const [isSubmitting, setIsSubmitting] = useState(false)
 
