@@ -1,6 +1,12 @@
 import './styles.scss'
 
-import { config, DEFAULT_CHAIN, SUPPORTED_CHAINS } from '@config'
+import {
+  config,
+  DEFAULT_CHAIN,
+  SUPPORTED_CHAINS,
+  SUPPORTED_CHAINS_DETAILS,
+} from '@config'
+import { errors, PROVIDERS } from '@distributedlab/w3p'
 import { FC, HTMLAttributes, useCallback, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
@@ -24,7 +30,7 @@ const AuthConfirmation: FC<Props> = () => {
   const navigate = useNavigate()
 
   const { jwzToken } = useZkpContext()
-  const { provider } = useWeb3Context()
+  const { provider, init } = useWeb3Context()
   const { getProveIdentityTxBody } = useDemoVerifierContract()
 
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -105,6 +111,45 @@ const AuthConfirmation: FC<Props> = () => {
     selectedChainToPublish,
   ])
 
+  const isProviderValidChain = useMemo(() => {
+    if (!provider) return false
+
+    return (
+      String(provider?.chainId).toLowerCase() ===
+      String(SUPPORTED_CHAINS_DETAILS[selectedChainToPublish].id).toLowerCase()
+    )
+  }, [provider, selectedChainToPublish])
+
+  const connectWallet = useCallback(async () => {
+    try {
+      await init(PROVIDERS.Metamask)
+    } catch (error) {
+      ErrorHandler.processWithoutFeedback(error)
+    }
+  }, [init])
+
+  const tryAddChain = useCallback(async () => {
+    try {
+      await provider?.addChain(SUPPORTED_CHAINS_DETAILS[selectedChainToPublish])
+    } catch (error) {
+      ErrorHandler.processWithoutFeedback(error)
+    }
+  }, [provider, selectedChainToPublish])
+
+  const trySwitchChain = useCallback(async () => {
+    try {
+      await provider?.switchChain(
+        Number(SUPPORTED_CHAINS_DETAILS[selectedChainToPublish].id),
+      )
+    } catch (error) {
+      if (error instanceof errors.ProviderChainNotFoundError) {
+        await tryAddChain()
+      } else {
+        ErrorHandler.process(error)
+      }
+    }
+  }, [provider, selectedChainToPublish, tryAddChain])
+
   return (
     <div className='auth-confirmation'>
       <div className='auth-confirmation__header'>
@@ -154,13 +199,33 @@ const AuthConfirmation: FC<Props> = () => {
 
           <div className='auth-confirmation__divider' />
 
-          <AppButton
-            className='auth-confirmation__submit-btn'
-            text={`SUBMIT PROOF`}
-            iconRight={ICON_NAMES.arrowRight}
-            size='large'
-            onClick={submitZkp}
-          />
+          {provider?.isConnected ? (
+            isProviderValidChain ? (
+              <AppButton
+                className='auth-confirmation__submit-btn'
+                text={`SUBMIT PROOF`}
+                iconRight={ICON_NAMES.arrowRight}
+                size='large'
+                onClick={submitZkp}
+              />
+            ) : (
+              <AppButton
+                className='auth-confirmation__submit-btn'
+                text={`SWITCH NETWORK`}
+                iconRight={ICON_NAMES.reply}
+                size='large'
+                onClick={trySwitchChain}
+              />
+            )
+          ) : (
+            <AppButton
+              className='auth-confirmation__submit-btn'
+              text={`CONNECT WALLET`}
+              iconRight={ICON_NAMES.metamask}
+              size='large'
+              onClick={connectWallet}
+            />
+          )}
         </div>
       )}
     </div>
