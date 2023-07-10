@@ -15,6 +15,8 @@ interface ZkpContextValue {
   proveRequest: string
 }
 
+const NGROK_URL = 'https://e162-185-143-147-216.eu.ngrok.io'
+
 export const zkpContext = createContext<ZkpContextValue>({
   startListeningProve: async () => {
     throw new TypeError('startListeningProve is not defined')
@@ -35,7 +37,7 @@ const claimTypesMap: Record<string, unknown> = {
     query: {
       allowedIssuers: ['*'],
       context:
-        'https://raw.githubusercontent.com/iden3/claim-schema-vocab/main/schemas/json-ld/kyc-v4.jsonld',
+        'https://raw.githubusercontent.com/iden3/claim-schema-vocab/main/schemas/json-ld/kyc-v3.json-ld',
       credentialSubject: {
         birthday: {
           $lt: 20000101,
@@ -161,9 +163,7 @@ const ZkpContextProvider: FC<Props> = ({ children, ...rest }) => {
       'SBT airdrop',
       String(provider?.address),
       'did:polygonid:polygon:mumbai:2qDpUjL74PwJxkLg1cDhFzCEx8887CNHC3GD91EGny',
-      `${'https://4f60-46-211-118-104.eu.ngrok.io'}/integrations/verify-proxy/v1/public/verify/callback/${
-        _svcVerificationRequest.verification_id
-      }`,
+      `${NGROK_URL}/integrations/verify-proxy/v1/public/verify/callback/${_svcVerificationRequest.verification_id}`,
     )
 
     const verifyRequest = {
