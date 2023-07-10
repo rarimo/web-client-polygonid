@@ -107,7 +107,6 @@ export class WalletConnectEvmProvider
     await this.#setListeners()
 
     this.emit(PROVIDER_EVENT_BUS_EVENTS.Initiated, this.#defaultEventPayload)
-    console.log(this.#provider.events)
   }
 
   async connect(): Promise<void> {
@@ -134,8 +133,6 @@ export class WalletConnectEvmProvider
         : PROVIDER_EVENT_BUS_EVENTS.Disconnect,
       this.#defaultEventPayload,
     )
-
-    console.log(this.#provider.events)
   }
 
   async #checkForPersistedSession() {
@@ -252,7 +249,6 @@ export class WalletConnectEvmProvider
 
   async #setListeners() {
     this.#provider.on('session_event', e => {
-      console.log('session_event', e)
       this.#chainId = e?.params?.chainId.split(':')[1] ?? this.#chainId
 
       this.#address =
@@ -274,31 +270,19 @@ export class WalletConnectEvmProvider
       )
     })
 
-    this.#provider.on('session_update', ({ id, topic }) => {
-      /* empty */
-    })
+    // this.#provider.on('session_update', ({ id, topic }) => {
+    //   /* empty */
+    // })
 
     this.#provider.on('session_delete', () => {
       this.emit(PROVIDER_EVENT_BUS_EVENTS.Disconnect, this.#defaultEventPayload)
     })
 
-    this.#provider.on('connect', e => {
-      console.log('connect', e)
-    })
-    this.#provider.on('disconnect', e => {
-      console.log('disconnect', e)
-    })
-    this.#provider.on('message', e => {
-      console.log('message', e)
-    })
-    this.#provider.on('chainChanged', e => {
-      console.log('chainChanged', e)
-    })
-    this.#provider.on('accountsChanged', e => {
-      console.log('accountsChanged', e)
-    })
-    this.#provider.on('display_uri', e => {
-      console.log('display_uri', e)
-    })
+    // this.#provider.on('connect', e => {})
+    // this.#provider.on('disconnect', e => {})
+    // this.#provider.on('message', e => {})
+    // this.#provider.on('chainChanged', e => {})
+    // this.#provider.on('accountsChanged', e => {})
+    // this.#provider.on('display_uri', e => {})
   }
 }

@@ -11,8 +11,8 @@ import { Web3ProviderContextProvider } from '@/contexts'
 import { RoutesPaths } from '@/enums'
 
 export const AppRoutes = () => {
-  const AuthLogin = lazy(() => import('@/pages/AuthLogin'))
   const AuthProof = lazy(() => import('@/pages/AuthProof'))
+  const AuthConfirmation = lazy(() => import('@/pages/AuthConfirmation'))
   const AuthSuccess = lazy(() => import('@/pages/AuthSuccess'))
 
   const router = createBrowserRouter([
@@ -27,12 +27,12 @@ export const AppRoutes = () => {
       children: [
         {
           index: true,
-          // path: RoutesPaths.authLogin,
-          element: <AuthLogin />,
+          // path: RoutesPaths.authProof,
+          element: <AuthProof />,
         },
         {
-          path: RoutesPaths.authProof,
-          element: <AuthProof />,
+          path: RoutesPaths.authConfirmation,
+          element: <AuthConfirmation />,
         },
         {
           path: RoutesPaths.authSuccess,
@@ -41,15 +41,15 @@ export const AppRoutes = () => {
 
         {
           path: '',
-          element: <Navigate replace to={RoutesPaths.authLogin} />,
+          element: <Navigate replace to={RoutesPaths.authProof} />,
         },
         {
           path: '/',
-          element: <Navigate replace to={RoutesPaths.authLogin} />,
+          element: <Navigate replace to={RoutesPaths.authProof} />,
         },
         {
           path: '*',
-          element: <Navigate replace to={RoutesPaths.authLogin} />,
+          element: <Navigate replace to={RoutesPaths.authProof} />,
         },
       ],
     },

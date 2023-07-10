@@ -1,16 +1,16 @@
+import { Token } from '@iden3/js-jwz'
 import { createContext, FC, HTMLAttributes, useCallback, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { v4 as uuidv4 } from 'uuid'
 
 import { api } from '@/api'
-import { useWeb3Context } from '@/contexts'
 import { RoutesPaths } from '@/enums'
 import { sleep } from '@/helpers'
-import { useMockVerifierContract } from '@/hooks/contracts/use-mock-verifier-contract'
 
 interface ZkpContextValue {
+  jwzToken?: Token
   startListeningProve: (jwt?: string) => Promise<void>
-  buildProveRequest: () => Promise<void>
+  createProveRequest: () => Promise<void>
   proveRequest: string
 }
 
@@ -18,8 +18,8 @@ export const zkpContext = createContext<ZkpContextValue>({
   startListeningProve: async () => {
     throw new TypeError('startListeningProve is not defined')
   },
-  buildProveRequest: async () => {
-    throw new TypeError('buildProveRequest is not defined')
+  createProveRequest: async () => {
+    throw new TypeError('createProveRequest is not defined')
   },
   proveRequest: '',
 })
@@ -76,23 +76,24 @@ export function createAuthorizationRequestWithMessage(
 const ZkpContextProvider: FC<Props> = ({ children, ...rest }) => {
   const navigate = useNavigate()
 
-  const { provider } = useWeb3Context()
+  // const { provider } = useWeb3Context()
+  //
+  // const { listenVerifiedUsers } = useMockVerifierContract(
+  //   '0x12D0e421d5FFd323b6B71835618D3a5eB17399Fa',
+  // )
 
-  const { listenVerifiedUsers } = useMockVerifierContract(
-    '0x12D0e421d5FFd323b6B71835618D3a5eB17399Fa',
-  )
-
+  const [jwzToken, setJwzToken] = useState<Token>()
   const [proveRequest, setProveRequest] = useState('')
   const [svcVerificationRequest, setSvcVerificationRequest] = useState<{
     verification_id: string
     jwt: string
   }>()
 
-  const startListeningVerify = useCallback(async () => {
-    await listenVerifiedUsers(provider?.address, () => {
-      navigate(RoutesPaths.authSuccess)
-    })
-  }, [listenVerifiedUsers, navigate, provider?.address])
+  // const startListeningVerify = useCallback(async () => {
+  //   await listenVerifiedUsers(provider?.address, () => {
+  //     navigate(RoutesPaths.authSuccess)
+  //   })
+  // }, [listenVerifiedUsers, navigate, provider?.address])
 
   const createVerificationRequest = useCallback(async (): Promise<{
     verification_id: string
@@ -110,7 +111,7 @@ const ZkpContextProvider: FC<Props> = ({ children, ...rest }) => {
     async (jwt?: string, verificationId?: string) => {
       const currentJwt = jwt || svcVerificationRequest?.jwt
       const currentVerificationId =
-        verificationId || svcVerificationRequest?.verification_id
+        verificationId || svcVerificationRequest?.verification_id || ''
 
       let jwz = ''
 
@@ -118,14 +119,14 @@ const ZkpContextProvider: FC<Props> = ({ children, ...rest }) => {
         try {
           const { data } = await api.get<{
             jwz: string
-          }>(`/integrations/verify-proxy/v1/public/verify/response`, {
-            query: {
-              'request-id': currentVerificationId!,
+          }>(
+            `/integrations/verify-proxy/v1/public/verify/response/${currentVerificationId}`,
+            {
+              headers: {
+                Authorization: `Bearer ${currentJwt}`,
+              },
             },
-            headers: {
-              Authorization: `Bearer ${currentJwt}`,
-            },
-          })
+          )
 
           jwz = data.jwz
         } catch (error) {
@@ -134,19 +135,25 @@ const ZkpContextProvider: FC<Props> = ({ children, ...rest }) => {
         await sleep(7000)
       } while (!jwz)
 
-      console.log(jwz)
+      setJwzToken(await Token.parse(jwz))
+
+      navigate(RoutesPaths.authConfirmation)
     },
-    [svcVerificationRequest],
+    [
+      navigate,
+      svcVerificationRequest?.jwt,
+      svcVerificationRequest?.verification_id,
+    ],
   )
 
-  const buildProveRequest = useCallback(async () => {
+  const createProveRequest = useCallback(async () => {
     const _svcVerificationRequest = await createVerificationRequest()
     setSvcVerificationRequest(_svcVerificationRequest)
 
     const authorizationRequest = createAuthorizationRequest(
       'lorem ipsum',
       'did:polygonid:polygon:mumbai:2qDyy1kEo2AYcP3RT4XGea7BtxsY285szg6yP9SPrs',
-      `${'https://6998-62-80-164-77.eu.ngrok.io'}/integrations/verify-proxy/v1/public/verify/callback/${
+      `${'https://9afe-62-80-164-77.eu.ngrok.io'}/integrations/verify-proxy/v1/public/verify/callback/${
         _svcVerificationRequest.verification_id
       }`,
     )
@@ -163,16 +170,20 @@ const ZkpContextProvider: FC<Props> = ({ children, ...rest }) => {
 
     setProveRequest(JSON.stringify(verifyRequest))
 
-    startListeningProve(_svcVerificationRequest.jwt)
+    startListeningProve(
+      _svcVerificationRequest.jwt,
+      _svcVerificationRequest.verification_id,
+    )
   }, [createVerificationRequest, startListeningProve])
 
   return (
     <zkpContext.Provider
       value={{
+        jwzToken,
         proveRequest,
 
         startListeningProve,
-        buildProveRequest,
+        createProveRequest,
       }}
       {...rest}
     >

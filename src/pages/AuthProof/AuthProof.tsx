@@ -2,7 +2,6 @@ import './styles.scss'
 
 import { FC, HTMLAttributes, useCallback, useMemo, useState } from 'react'
 import QRCode from 'react-qr-code'
-import { useEffectOnce } from 'react-use'
 
 import { AppButton } from '@/common'
 import { useZkpContext } from '@/contexts'
@@ -11,16 +10,16 @@ type Props = HTMLAttributes<HTMLDivElement>
 
 const AuthProof: FC<Props> = () => {
   const [isStarted, setIsStarted] = useState(false)
-  const { proveRequest, buildProveRequest } = useZkpContext()
+  const { proveRequest, createProveRequest } = useZkpContext()
 
   const qrData = useMemo(() => {
     return proveRequest
   }, [proveRequest])
 
   const start = useCallback(async () => {
-    await buildProveRequest()
+    await createProveRequest()
     setIsStarted(true)
-  }, [buildProveRequest])
+  }, [createProveRequest])
 
   return (
     <div className='auth-proof'>

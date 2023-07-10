@@ -1,5 +1,4 @@
 import { DEFAULT_CHAIN, SUPPORTED_CHAINS_DETAILS } from '@config'
-import { Provider } from '@ethersproject/providers'
 import { providers } from 'ethers'
 import { useCallback, useMemo } from 'react'
 

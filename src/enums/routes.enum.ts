@@ -4,5 +4,6 @@ export enum RoutesPaths {
   // auth = '/auth',
   authLogin = '/',
   authProof = '/proof',
+  authConfirmation = '/confirmation',
   authSuccess = '/success',
 }
