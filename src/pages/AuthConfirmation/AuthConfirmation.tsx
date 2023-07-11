@@ -71,14 +71,9 @@ const AuthConfirmation: FC<Props> = () => {
     try {
       if (!jwzToken) throw new TypeError('ZKP is not defined')
 
-      const zkProof = JSON.parse(jwzToken.getPayload()).body.scope[0] as ZKProof
+      const zkProofPayload = JSON.parse(jwzToken.getPayload())
 
-      console.log('jwzToken', jwzToken)
-      console.log('zkProof', zkProof)
-      console.log(
-        'JSON.parse(jwzToken.getPayload())',
-        JSON.parse(jwzToken.getPayload()),
-      )
+      const zkProof = zkProofPayload.body.scope[0] as ZKProof
 
       const txBody = getProveIdentityTxBody(
         '1',

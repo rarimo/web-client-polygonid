@@ -4,7 +4,6 @@ import { useNavigate } from 'react-router-dom'
 import { v4 as uuidv4 } from 'uuid'
 
 import { api } from '@/api'
-import { useWeb3Context } from '@/contexts'
 import { RoutesPaths } from '@/enums'
 import { sleep } from '@/helpers'
 
@@ -15,7 +14,7 @@ interface ZkpContextValue {
   proveRequest: string
 }
 
-const NGROK_URL = 'https://e162-185-143-147-216.eu.ngrok.io'
+const NGROK_URL = 'https://962d-46-211-112-70.eu.ngrok.io'
 
 export const zkpContext = createContext<ZkpContextValue>({
   startListeningProve: async () => {
@@ -32,15 +31,14 @@ type Props = HTMLAttributes<HTMLDivElement>
 const claimTypesMap: Record<string, unknown> = {
   KYCAgeCredential: {
     id: 1,
-    // FIXME: replace with credentialAtomicQueryMTPV2OnChain
-    circuitId: 'credentialAtomicQuerySigV2OnChain',
+    circuitId: 'credentialAtomicQuerySigV2',
     query: {
       allowedIssuers: ['*'],
       context:
         'https://raw.githubusercontent.com/iden3/claim-schema-vocab/main/schemas/json-ld/kyc-v3.json-ld',
       credentialSubject: {
         birthday: {
-          $lt: 20000101,
+          $lt: 20020101,
         },
       },
       type: 'KYCAgeCredential',
@@ -77,7 +75,7 @@ export function createAuthorizationRequestWithMessage(
     type: 'https://iden3-communication.io/authorization/1.0/request',
     body: {
       reason: reason,
-      message: message,
+      // message: message,
       callbackUrl: callbackUrl,
       scope: [],
     },
@@ -93,8 +91,6 @@ const ZkpContextProvider: FC<Props> = ({ children, ...rest }) => {
     verification_id: string
     jwt: string
   }>()
-
-  const { provider } = useWeb3Context()
 
   // const startListeningVerify = useCallback(async () => {
   //   await listenVerifiedUsers(provider?.address, () => {
@@ -154,14 +150,12 @@ const ZkpContextProvider: FC<Props> = ({ children, ...rest }) => {
   )
 
   const createProveRequest = useCallback(async () => {
-    if (!provider?.address) return
-
     const _svcVerificationRequest = await createVerificationRequest()
     setSvcVerificationRequest(_svcVerificationRequest)
 
     const authorizationRequest = createAuthorizationRequest(
       'SBT airdrop',
-      String(provider?.address),
+      '',
       'did:polygonid:polygon:mumbai:2qDpUjL74PwJxkLg1cDhFzCEx8887CNHC3GD91EGny',
       `${NGROK_URL}/integrations/verify-proxy/v1/public/verify/callback/${_svcVerificationRequest.verification_id}`,
     )
@@ -182,7 +176,7 @@ const ZkpContextProvider: FC<Props> = ({ children, ...rest }) => {
       _svcVerificationRequest.jwt,
       _svcVerificationRequest.verification_id,
     )
-  }, [createVerificationRequest, provider?.address, startListeningProve])
+  }, [createVerificationRequest, startListeningProve])
 
   return (
     <zkpContext.Provider
