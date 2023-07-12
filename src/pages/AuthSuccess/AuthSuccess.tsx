@@ -72,6 +72,7 @@ const AuthSuccess: FC<Props> = () => {
                 SUPPORTED_CHAINS_DETAILS[DEFAULT_CHAIN],
                 verificationSuccessTx.get,
               )}
+              target='_blank'
             />
           </div>
         </div>

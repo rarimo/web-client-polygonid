@@ -18,7 +18,7 @@ interface ZkpContextValue {
   }
 }
 
-const NGROK_URL = 'https://3b3e-62-80-164-77.ngrok.io'
+const NGROK_URL = 'https://eee1-62-80-164-77.ngrok.io'
 
 export const zkpContext = createContext<ZkpContextValue>({
   startListeningProve: async () => {
