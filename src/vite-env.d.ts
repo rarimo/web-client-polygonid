@@ -5,6 +5,7 @@ interface ImportMetaEnv {
   VITE_PORT: string
   VITE_API_URL: string
   VITE_APP_NAME: string
+  VITE_APP_BUILD_VERSION: string
 
   VITE_WALLET_CONNECT_PROJECT_ID: string
 
@@ -12,6 +13,8 @@ interface ImportMetaEnv {
 
   VITE_DEMO_VERIFIER_CONTRACT_ADDRESS_POLYGON_TESTNET: string
   VITE_DEMO_SBT_CONTRACT_ADDRESS_POLYGON_TESTNET: string
+
+  VITE_CALLBACK_URL: string
 }
 
 interface Document {

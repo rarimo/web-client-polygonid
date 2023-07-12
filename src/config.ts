@@ -86,6 +86,8 @@ export const config = {
   /* prettier-ignore */
   DEMO_SBT_CONTRACT_ADDRESS_POLYGON_TESTNET: import.meta.env.VITE_DEMO_SBT_CONTRACT_ADDRESS_POLYGON_TESTNET,
 
+  CALLBACK_URL: import.meta.env.VITE_CALLBACK_URL,
+
   /* eslint-enable */
 } as const
 
