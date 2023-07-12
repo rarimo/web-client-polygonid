@@ -49,6 +49,8 @@ const AuthSuccess: FC<Props> = () => {
                 }
               >
                 {abbrCenter(
+                  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                  // @ts-ignore
                   config?.[`DEMO_SBT_CONTRACT_ADDRESS_${DEFAULT_CHAIN}`],
                 )}
               </button>
@@ -69,6 +71,8 @@ const AuthSuccess: FC<Props> = () => {
               size='none'
               iconLeft={ICON_NAMES.externalLink}
               href={provider?.getTxUrl?.(
+                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                // @ts-ignore
                 SUPPORTED_CHAINS_DETAILS[DEFAULT_CHAIN],
                 verificationSuccessTx.get,
               )}

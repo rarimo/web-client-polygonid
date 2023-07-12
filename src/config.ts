@@ -9,7 +9,6 @@ export enum SUPPORTED_CHAINS {
   SEPOLIA = 'SEPOLIA',
   POLYGON = 'POLYGON',
   POLYGON_TESTNET = 'POLYGON_TESTNET',
-  GOERLI = 'GOERLI',
 }
 
 export const SUPPORTED_CHAINS_DETAILS: Record<SUPPORTED_CHAINS, Chain> = {
@@ -53,22 +52,10 @@ export const SUPPORTED_CHAINS_DETAILS: Record<SUPPORTED_CHAINS, Chain> = {
     type: CHAIN_TYPES.EVM,
     icon: '',
   },
-  [SUPPORTED_CHAINS.GOERLI]: {
-    id: '5',
-    name: 'Goerli',
-    rpcUrl: 'https://ethereum-goerli.publicnode.com',
-    explorerUrl: 'https://goerli.etherscan.io',
-    token: {
-      name: 'Goerli',
-      symbol: 'Goerli',
-      decimals: 18,
-    },
-    type: CHAIN_TYPES.EVM,
-    icon: '',
-  },
 }
 
-export const DEFAULT_CHAIN = SUPPORTED_CHAINS.POLYGON_TESTNET
+export const DEFAULT_CHAIN = import.meta.env
+  .VITE_DEFAULT_CHAIN as SUPPORTED_CHAINS
 
 export const config = {
   API_URL: import.meta.env.VITE_API_URL,
@@ -79,12 +66,17 @@ export const config = {
   WALLET_CONNECT_PROJECT_ID: import.meta.env.VITE_WALLET_CONNECT_PROJECT_ID,
   AUTH_BJJ_CREDENTIAL_HASH: import.meta.env.VITE_AUTH_BJJ_CREDENTIAL_HASH,
 
-  /* eslint-disable max-len */
-
-  /* prettier-ignore */
-  DEMO_VERIFIER_CONTRACT_ADDRESS_POLYGON_TESTNET: import.meta.env.VITE_DEMO_VERIFIER_CONTRACT_ADDRESS_POLYGON_TESTNET,
-  /* prettier-ignore */
-  DEMO_SBT_CONTRACT_ADDRESS_POLYGON_TESTNET: import.meta.env.VITE_DEMO_SBT_CONTRACT_ADDRESS_POLYGON_TESTNET,
+  ...Object.values(SUPPORTED_CHAINS).reduce(
+    (acc, curr) => ({
+      ...acc,
+      /* eslint-disable max-len */
+      /* prettier-ignore */
+      [`DEMO_VERIFIER_CONTRACT_ADDRESS_${curr}`]: import.meta.env[`VITE_DEMO_VERIFIER_CONTRACT_ADDRESS_${curr}`] || '',
+      /* prettier-ignore */
+      [`DEMO_SBT_CONTRACT_ADDRESS_${curr}`]: import.meta.env[`VITE_DEMO_SBT_CONTRACT_ADDRESS_${curr}`] || '',
+    }),
+    {},
+  ),
 
   CALLBACK_URL: import.meta.env.VITE_CALLBACK_URL,
 

@@ -56,11 +56,6 @@ const AuthConfirmation: FC<Props> = () => {
         value: SUPPORTED_CHAINS.SEPOLIA,
         iconName: ICON_NAMES.ethereum,
       },
-      [SUPPORTED_CHAINS.GOERLI]: {
-        title: 'Goerli chain',
-        value: SUPPORTED_CHAINS.GOERLI,
-        iconName: ICON_NAMES.ethereum,
-      },
     }),
     [],
   )
@@ -92,6 +87,9 @@ const AuthConfirmation: FC<Props> = () => {
       )
 
       const tx = await provider?.signAndSendTx({
+        // FIXME
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         to: config?.[`DEMO_VERIFIER_CONTRACT_ADDRESS_${DEFAULT_CHAIN}`],
         ...txBody,
       })
@@ -177,7 +175,9 @@ const AuthConfirmation: FC<Props> = () => {
             </div>
 
             <span className='auth-confirmation__chain-preview-title'>
-              {`Your proof will be submitted on Polygon`}
+              {/*eslint-disable-next-line @typescript-eslint/ban-ts-comment*/}
+              {/*@ts-ignore*/}
+              {`Your proof will be submitted on ${CHAINS_DETAILS_MAP[DEFAULT_CHAIN].title}`}
             </span>
           </div>
 
@@ -194,7 +194,7 @@ const AuthConfirmation: FC<Props> = () => {
               <AppButton
                 className='auth-confirmation__submit-btn'
                 text={`SWITCH NETWORK`}
-                iconRight={ICON_NAMES.reply}
+                iconRight={ICON_NAMES.switchHorizontal}
                 size='large'
                 onClick={trySwitchChain}
               />
