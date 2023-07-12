@@ -151,6 +151,11 @@ $card-padding-side: #{toRem(24)};
   background: var(--background-secondary-main);
   padding: toRem(16);
   border: toRem(1) solid var(--border-primary-main);
+
+  @include respond-to(xsmall) {
+    display: flex;
+    flex-direction: column;
+  }
 }
 
 .auth-success__minted-nft-card-img-wrp {
@@ -170,6 +175,11 @@ $card-padding-side: #{toRem(24)};
   display: flex;
   flex-direction: column;
   gap: toRem(16);
+
+  @include respond-to(xsmall) {
+    text-align: center;
+    align-items: center;
+  }
 }
 
 .auth-success__minted-nft-card-title {
