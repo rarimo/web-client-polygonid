@@ -35,6 +35,25 @@ yarn rsc %release-version%
  docker build --no-cache --progress=plain --build-arg BUILD_VERSION=1.0.0-rc.0 -t react-template .
 ```
 
+### Env configuration
+To setup working contracts, copy .env.example to .env and fill it with your data
+
+set contract addresses with following format:
+```yaml
+VITE_DEMO_VERIFIER_CONTRACT_ADDRESS_[CHAIN_NAME]=0x000000000
+VITE_DEMO_SBT_CONTRACT_ADDRESS_[CHAIN_NAME]=0x000000000
+```
+
+where CHAIN_NAME is one of the following:
+- SEPOLIA
+- POLYGON
+- POLYGON_TESTNET
+
+then set currently used chain with:
+```yaml
+VITE_DEFAULT_CHAIN=SEPOLIA
+```
+
 ## Some additional features
 
 ### JsonApi lib

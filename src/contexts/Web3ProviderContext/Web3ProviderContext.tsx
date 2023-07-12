@@ -1,7 +1,9 @@
+import { DEFAULT_CHAIN, SUPPORTED_CHAINS_DETAILS } from '@config'
 import {
   MetamaskProvider,
   Provider,
   ProviderDetector,
+  type ProviderEventPayload,
   ProviderInstance,
   ProviderProxyConstructor,
   PROVIDERS,
@@ -77,31 +79,45 @@ const Web3ProviderContextProvider: FC<Props> = ({ children }) => {
   })
 
   const [currentTxToastId, setCurrentTxToastId] = useState<string | number>()
-  const { showToast, removeToast } = useNotification()
+  const { showTxToast, removeToast } = useNotification()
 
   const provider = useProvider()
 
   const isValidChain = useMemo(() => true, [])
 
-  const handleTxSent = useCallback(() => {
-    setCurrentTxToastId(
-      showToast('info', {
-        title: 'Transaction sent',
-        message: 'Waiting for confirmation...',
-      }),
-    )
-  }, [showToast])
+  const handleTxSent = useCallback(
+    (e?: ProviderEventPayload) => {
+      if (!e?.txHash) return
 
-  const handleTxConfirmed = useCallback(() => {
-    if (currentTxToastId) {
-      removeToast(currentTxToastId)
-    }
+      const txLink = provider?.getTxUrl(
+        // FIXME
+        SUPPORTED_CHAINS_DETAILS[DEFAULT_CHAIN],
+        e.txHash,
+      )
 
-    showToast('success', {
-      title: `Success`,
-      message: 'Transaction confirmed',
-    })
-  }, [currentTxToastId, removeToast, showToast])
+      setCurrentTxToastId(showTxToast('pending', txLink))
+    },
+    [provider, showTxToast],
+  )
+
+  const handleTxConfirmed = useCallback(
+    (e?: ProviderEventPayload) => {
+      if (!e?.txResponse || !provider?.getHashFromTx) return
+
+      const txLink = provider?.getTxUrl(
+        // FIXME
+        SUPPORTED_CHAINS_DETAILS[DEFAULT_CHAIN],
+        provider.getHashFromTx(e.txResponse),
+      )
+
+      if (currentTxToastId) {
+        removeToast(currentTxToastId)
+      }
+
+      showTxToast('success', txLink)
+    },
+    [currentTxToastId, provider, removeToast, showTxToast],
+  )
 
   const init = useCallback(
     async (providerType?: SUPPORTED_PROVIDERS) => {

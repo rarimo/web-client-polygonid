@@ -1,15 +1,22 @@
-import { memo, useCallback, useState } from 'react'
+import { AnimatePresence } from 'framer-motion'
+import {
+  FC,
+  HTMLAttributes,
+  memo,
+  Suspense,
+  useCallback,
+  useState,
+} from 'react'
 import { ToastContainer } from 'react-toastify'
 import { useEffectOnce } from 'react-use'
 
-import { Loader } from '@/common'
+import { AppNavbar, Loader } from '@/common'
 import { useWeb3Context, ZkpContextProvider } from '@/contexts'
 import { bus, BUS_EVENTS, ErrorHandler } from '@/helpers'
 import { useNotification, useViewportSizes } from '@/hooks'
-import { AppRoutes } from '@/routes'
 import { NotificationPayload } from '@/types'
 
-const App = () => {
+const App: FC<HTMLAttributes<HTMLDivElement>> = ({ children }) => {
   useViewportSizes()
 
   const [isAppInitialized, setIsAppInitialized] = useState(false)
@@ -46,9 +53,18 @@ const App = () => {
 
   return (
     <div id='app'>
-      <ZkpContextProvider>
-        {isAppInitialized ? <AppRoutes /> : <Loader />}
-      </ZkpContextProvider>
+      <Suspense fallback={<></>}>
+        <AppNavbar />
+        <AnimatePresence>
+          <div className='app__main'>
+            <AnimatePresence>
+              <ZkpContextProvider>
+                {isAppInitialized ? children : <Loader />}
+              </ZkpContextProvider>
+            </AnimatePresence>
+          </div>
+        </AnimatePresence>
+      </Suspense>
       <ToastContainer />
     </div>
   )

@@ -2,13 +2,18 @@ import './styles.scss'
 
 import { FC, HTMLAttributes } from 'react'
 import QRCode from 'react-qr-code'
+import { useEffectOnce } from 'react-use'
 
 import { useZkpContext } from '@/contexts'
 
 type Props = HTMLAttributes<HTMLDivElement>
 
 const AuthProof: FC<Props> = () => {
-  const { proveRequest } = useZkpContext()
+  const { proveRequest, createProveRequest } = useZkpContext()
+
+  useEffectOnce(() => {
+    createProveRequest()
+  })
 
   return (
     <div className='auth-proof'>
@@ -20,10 +25,7 @@ const AuthProof: FC<Props> = () => {
       <div className='auth-proof__card'>
         <div className='auth-proof__card-header'>
           <div className='auth-proof__card-qr-wrp'>
-            <QRCode
-              className='auth-proof__card-qr'
-              value={JSON.stringify(proveRequest)}
-            />
+            <QRCode className='auth-proof__card-qr' value={proveRequest} />
           </div>
         </div>
         <div className='auth-proof__card-body'>

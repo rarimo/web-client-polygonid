@@ -1,5 +1,4 @@
-import { AnimatePresence } from 'framer-motion'
-import { lazy, Suspense } from 'react'
+import { lazy } from 'react'
 import {
   createBrowserRouter,
   Navigate,
@@ -7,59 +6,50 @@ import {
   RouterProvider,
 } from 'react-router-dom'
 
-import { AppNavbar } from '@/common'
+import App from '@/App'
+import { Web3ProviderContextProvider } from '@/contexts'
 import { RoutesPaths } from '@/enums'
-import { AuthLayout } from '@/layouts'
 
 export const AppRoutes = () => {
-  const AuthLogin = lazy(() => import('@/pages/AuthLogin/AuthLogin'))
-  const AuthProof = lazy(() => import('@/pages/AuthProof/AuthProof'))
+  const AuthProof = lazy(() => import('@/pages/AuthProof'))
+  const AuthConfirmation = lazy(() => import('@/pages/AuthConfirmation'))
   const AuthSuccess = lazy(() => import('@/pages/AuthSuccess'))
 
   const router = createBrowserRouter([
     {
-      path: RoutesPaths.app,
       element: (
-        <Suspense fallback={<></>}>
-          <AppNavbar />
-          <AnimatePresence>
-            <div className='app__main'>
-              <Outlet />
-            </div>
-          </AnimatePresence>
-        </Suspense>
+        <Web3ProviderContextProvider>
+          <App>
+            <Outlet />
+          </App>
+        </Web3ProviderContextProvider>
       ),
       children: [
         {
-          path: RoutesPaths.auth,
-          element: <AuthLayout />,
-          children: [
-            {
-              index: true,
-              path: RoutesPaths.authLogin,
-              element: <AuthLogin />,
-            },
-            {
-              path: RoutesPaths.authProof,
-              element: <AuthProof />,
-            },
-            {
-              path: RoutesPaths.authSuccess,
-              element: <AuthSuccess />,
-            },
-            {
-              path: '',
-              element: <Navigate replace to={RoutesPaths.authLogin} />,
-            },
-          ],
+          index: true,
+          // path: RoutesPaths.authProof,
+          element: <AuthProof />,
+        },
+        {
+          path: RoutesPaths.authConfirmation,
+          element: <AuthConfirmation />,
+        },
+        {
+          path: RoutesPaths.authSuccess,
+          element: <AuthSuccess />,
+        },
+
+        {
+          path: '',
+          element: <Navigate replace to={RoutesPaths.authProof} />,
         },
         {
           path: '/',
-          element: <Navigate replace to={RoutesPaths.authLogin} />,
+          element: <Navigate replace to={RoutesPaths.authProof} />,
         },
         {
           path: '*',
-          element: <Navigate replace to={RoutesPaths.authLogin} />,
+          element: <Navigate replace to={RoutesPaths.authProof} />,
         },
       ],
     },

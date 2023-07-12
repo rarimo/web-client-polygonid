@@ -1,69 +1,93 @@
-import { createContext, FC, HTMLAttributes, useCallback, useMemo } from 'react'
+import { config } from '@config'
+import { Token } from '@iden3/js-jwz'
+import { createContext, FC, HTMLAttributes, useCallback, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 
-import { useWeb3Context } from '@/contexts'
+import { ClaimTypes } from '@/contexts/ZkpContext/enums'
+import {
+  buildRequestOffChain,
+  getJWZOffChain,
+} from '@/contexts/ZkpContext/helpers'
+import { RoutesPaths } from '@/enums'
+import { sleep } from '@/helpers'
 
 interface ZkpContextValue {
-  startListeningProve: () => Promise<void>
-  proveRequest: unknown
+  jwzToken?: Token
+  proveRequest: string
+  verificationSuccessTx: {
+    get: string
+    set: (tx: string) => void
+  }
+
+  createProveRequest: () => Promise<void>
 }
 
 export const zkpContext = createContext<ZkpContextValue>({
-  startListeningProve: async () => {
-    throw new TypeError('startListeningProve is not defined')
+  proveRequest: '',
+  verificationSuccessTx: {
+    get: '',
+    set: () => {
+      throw new TypeError('verificationSuccessTx is not defined')
+    },
   },
-  proveRequest: {},
+
+  createProveRequest: async () => {
+    throw new TypeError('createProveRequest is not defined')
+  },
 })
 
 type Props = HTMLAttributes<HTMLDivElement>
 
 const ZkpContextProvider: FC<Props> = ({ children, ...rest }) => {
-  const { provider } = useWeb3Context()
+  const navigate = useNavigate()
 
-  const proveRequest = useMemo(
-    () => ({
-      id: '7f38a193-0918-4a48-9fac-36adfdb8b542',
-      typ: 'application/iden3comm-plain-json',
-      type: 'https://iden3-communication.io/proofs/1.0/contract-invoke-request',
-      thid: '7f38a193-0918-4a48-9fac-36adfdb8b542',
-      body: {
-        reason: 'airdrop participation',
-        transaction_data: {
-          contract_address: '0x5E1cf3983DD996BF0299e1C5aF7e6bD2005Ee309',
-          method_id: 'b68967e2',
-          chain_id: 35443,
-          network: 'qtestnet',
-        },
-        scope: [
-          {
-            id: 1,
-            circuitId: 'credentialAtomicQuerySigV2OnChain',
-            query: {
-              allowedIssuers: ['*'],
-              context:
-                'https://raw.githubusercontent.com/omegatymbjiep/schemas/main/json-ld/NaturalPerson.json-ld',
-              credentialSubject: {
-                isNatural: {
-                  $eq: 1,
-                },
-              },
-              type: 'NaturalPerson',
-            },
-          },
-        ],
-      },
-    }),
-    [],
+  const [jwzToken, setJwzToken] = useState<Token>()
+  const [proveRequest, setProveRequest] = useState('')
+  const [verificationSuccessTx, setVerificationSuccessTx] = useState<string>('')
+
+  const startListeningProve = useCallback(
+    async (jwt: string, verificationId: string) => {
+      let jwz = ''
+
+      do {
+        try {
+          jwz = await getJWZOffChain(jwt, verificationId)
+        } catch (error) {
+          /* empty */
+        }
+        await sleep(3000)
+      } while (!jwz)
+
+      setJwzToken(await Token.parse(jwz))
+
+      navigate(RoutesPaths.authConfirmation)
+    },
+    [navigate],
   )
 
-  const startListeningProve = useCallback(async () => {
-    // empty
-  }, [])
+  const createProveRequest = useCallback(async () => {
+    const proveRequest = await buildRequestOffChain(
+      config.CALLBACK_URL,
+      ClaimTypes.KYCAgeCredential,
+    )
+
+    setProveRequest(JSON.stringify(proveRequest.request))
+
+    startListeningProve(proveRequest.jwtToken, proveRequest.request.id)
+  }, [startListeningProve])
 
   return (
     <zkpContext.Provider
       value={{
-        startListeningProve,
+        jwzToken,
         proveRequest,
+
+        createProveRequest,
+
+        verificationSuccessTx: {
+          get: verificationSuccessTx,
+          set: setVerificationSuccessTx,
+        },
       }}
       {...rest}
     >
