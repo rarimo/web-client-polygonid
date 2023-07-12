@@ -2,7 +2,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: toRem(48);
+  gap: toRem(16);
 }
 
 .auth-success__header {
@@ -11,6 +11,7 @@
   align-items: center;
   text-align: center;
   gap: toRem(16);
+  margin-bottom: toRem(48 - 16);
 }
 
 .auth-success__header-icon-wrp {
@@ -104,8 +105,7 @@ $card-padding-side: #{toRem(24)};
 }
 
 .auth-success__copy-field-wrp {
-  padding-left: $card-padding-side;
-  padding-right: $card-padding-side;
+  padding: 0 $card-padding-side;
   width: 100%;
 }
 
@@ -117,6 +117,12 @@ $card-padding-side: #{toRem(24)};
   padding: toRem(16);
   background: rgba(0, 0, 0, 0.05);
   border: toRem(1) solid var(--border-primary-main);
+  color: var(--text-primary-main);
+}
+
+.auth-success__copy-field-icon {
+  width: 1.2em;
+  height: 1.2em;
 }
 
 .auth-success__tip {

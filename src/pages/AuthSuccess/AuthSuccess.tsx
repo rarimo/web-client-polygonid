@@ -5,14 +5,27 @@ import { FC, HTMLAttributes } from 'react'
 
 import { AppButton, Icon } from '@/common'
 import { useWeb3Context, useZkpContext } from '@/contexts'
+import { CLAIM_TYPES_CHECKS_VALUES_MAP } from '@/contexts/ZkpContext/consts'
+import { ClaimTypes } from '@/contexts/ZkpContext/enums'
 import { ICON_NAMES } from '@/enums'
-import { abbrCenter, copyToClipboard } from '@/helpers'
+import { abbrCenter } from '@/helpers'
 
 type Props = HTMLAttributes<HTMLDivElement>
 
 const AuthSuccess: FC<Props> = () => {
   const { provider } = useWeb3Context()
   const { verificationSuccessTx } = useZkpContext()
+
+  const METADATA: Record<ClaimTypes, { label: string }> = {
+    [ClaimTypes.KYCAgeCredential]: {
+      label: `Proof of Age: older than ${
+        new Date().getFullYear() -
+        new Date(
+          String(CLAIM_TYPES_CHECKS_VALUES_MAP[ClaimTypes.KYCAgeCredential]),
+        ).getFullYear()
+      }`,
+    },
+  }
 
   return (
     <div className='auth-success'>
@@ -21,6 +34,30 @@ const AuthSuccess: FC<Props> = () => {
           <Icon className='auth-success__header-icon' name={ICON_NAMES.check} />
         </div>
         <h2 className='auth-success__header-title'>{`Proof Submitted`}</h2>
+      </div>
+
+      <div className='auth-success__card'>
+        <span className='auth-success__card-title'>{`Check transaction`}</span>
+
+        <a
+          className='auth-success__copy-field-wrp'
+          href={provider?.getTxUrl?.(
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            SUPPORTED_CHAINS_DETAILS[DEFAULT_CHAIN],
+            verificationSuccessTx.get,
+          )}
+          target='_blank'
+          rel='noreferrer'
+        >
+          <span className='auth-success__copy-field'>
+            {abbrCenter(verificationSuccessTx.get, 10)}
+            <Icon
+              className='auth-success__copy-field-icon'
+              name={ICON_NAMES.externalLink}
+            />
+          </span>
+        </a>
       </div>
 
       <div className='auth-success__minted-nft'>
@@ -43,41 +80,41 @@ const AuthSuccess: FC<Props> = () => {
             </span>
 
             <span className='auth-success__minted-nft-card-subtitle'>
-              <button
-                onClick={() =>
-                  copyToClipboard('66eus7EDFSFV3djAp9otX75w284vs8SODot27XHn21')
-                }
+              <a
+                href={provider?.getAddressUrl?.(
+                  // FIXME
+                  SUPPORTED_CHAINS_DETAILS[DEFAULT_CHAIN],
+                  // eslint-disable-next-line max-len
+                  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                  // @ts-ignore
+                  config?.[`DEMO_SBT_CONTRACT_ADDRESS_${DEFAULT_CHAIN}`],
+                )}
+                target={'_blank'}
+                rel='noreferrer'
               >
                 {abbrCenter(
                   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
                   // @ts-ignore
                   config?.[`DEMO_SBT_CONTRACT_ADDRESS_${DEFAULT_CHAIN}`],
                 )}
-              </button>
+              </a>
             </span>
           </div>
         </div>
       </div>
 
       <div className='auth-success__card'>
-        <span className='auth-success__card-title'>{`Check transaction`}</span>
-
-        <div className='auth-success__copy-field-wrp'>
-          <div className='auth-success__copy-field'>
-            {abbrCenter(verificationSuccessTx.get, 10)}
-            <AppButton
-              scheme='none'
-              modification='none'
-              size='none'
-              iconLeft={ICON_NAMES.externalLink}
-              href={provider?.getTxUrl?.(
-                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                // @ts-ignore
-                SUPPORTED_CHAINS_DETAILS[DEFAULT_CHAIN],
-                verificationSuccessTx.get,
-              )}
-              target='_blank'
-            />
+        <div className='auth-success__metadata'>
+          <div className='auth-success__metadata-item'>
+            <span className='auth-success__metadata-item-label'>
+              {METADATA[ClaimTypes.KYCAgeCredential].label}
+            </span>
+            <div className='auth-success__metadata-item-value'>
+              <Icon
+                className='auth-success__metadata-item-value-icon'
+                name={ICON_NAMES.checkCircle}
+              />
+            </div>
           </div>
         </div>
       </div>
