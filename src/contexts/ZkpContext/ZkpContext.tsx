@@ -12,9 +12,13 @@ interface ZkpContextValue {
   startListeningProve: (jwt?: string) => Promise<void>
   createProveRequest: () => Promise<void>
   proveRequest: string
+  verificationSuccessTx: {
+    get: string
+    set: (tx: string) => void
+  }
 }
 
-const NGROK_URL = 'https://962d-46-211-112-70.eu.ngrok.io'
+const NGROK_URL = 'https://3b3e-62-80-164-77.ngrok.io'
 
 export const zkpContext = createContext<ZkpContextValue>({
   startListeningProve: async () => {
@@ -24,6 +28,12 @@ export const zkpContext = createContext<ZkpContextValue>({
     throw new TypeError('createProveRequest is not defined')
   },
   proveRequest: '',
+  verificationSuccessTx: {
+    get: '',
+    set: () => {
+      throw new TypeError('verificationSuccessTx is not defined')
+    },
+  },
 })
 
 type Props = HTMLAttributes<HTMLDivElement>
@@ -31,7 +41,7 @@ type Props = HTMLAttributes<HTMLDivElement>
 const claimTypesMap: Record<string, unknown> = {
   KYCAgeCredential: {
     id: 1,
-    circuitId: 'credentialAtomicQuerySigV2',
+    circuitId: 'credentialAtomicQueryMTPV2',
     query: {
       allowedIssuers: ['*'],
       context:
@@ -91,6 +101,7 @@ const ZkpContextProvider: FC<Props> = ({ children, ...rest }) => {
     verification_id: string
     jwt: string
   }>()
+  const [verificationSuccessTx, setVerificationSuccessTx] = useState<string>('')
 
   // const startListeningVerify = useCallback(async () => {
   //   await listenVerifiedUsers(provider?.address, () => {
@@ -186,6 +197,11 @@ const ZkpContextProvider: FC<Props> = ({ children, ...rest }) => {
 
         startListeningProve,
         createProveRequest,
+
+        verificationSuccessTx: {
+          get: verificationSuccessTx,
+          set: setVerificationSuccessTx,
+        },
       }}
       {...rest}
     >

@@ -134,8 +134,7 @@ $card-padding-side: #{toRem(24)};
   width: 100%;
   background: var(--success-light);
   padding: $card-padding-side;
-  border-top: toRem(1) solid var(--border-primary-main);
-  border-bottom: toRem(1) solid var(--border-primary-main);
+  border: toRem(1) solid var(--border-primary-main);
 }
 
 .auth-success__minted-nft-title {
@@ -184,4 +183,8 @@ $card-padding-side: #{toRem(24)};
   font-size: toRem(14);
   line-height: 1.3;
   font-weight: 700;
+}
+
+.auth-success__return-btn {
+  width: 100%;
 }

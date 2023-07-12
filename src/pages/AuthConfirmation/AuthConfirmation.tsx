@@ -6,7 +6,11 @@ import {
   SUPPORTED_CHAINS,
   SUPPORTED_CHAINS_DETAILS,
 } from '@config'
-import { errors, PROVIDERS } from '@distributedlab/w3p'
+import {
+  errors,
+  type EthTransactionResponse,
+  PROVIDERS,
+} from '@distributedlab/w3p'
 import { ZKProof } from '@iden3/js-jwz'
 import { FC, HTMLAttributes, useCallback, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
@@ -15,8 +19,7 @@ import loaderJson from '@/assets/animations/loader.json'
 import { Animation, AppButton, Icon } from '@/common'
 import { useWeb3Context, useZkpContext } from '@/contexts'
 import { ICON_NAMES, RoutesPaths } from '@/enums'
-import { BasicSelectField } from '@/fields'
-import { ErrorHandler, sleep } from '@/helpers'
+import { ErrorHandler } from '@/helpers'
 import { useDemoVerifierContract } from '@/hooks/contracts'
 
 type Props = HTMLAttributes<HTMLDivElement>
@@ -30,7 +33,7 @@ type ChainToPublish = {
 const AuthConfirmation: FC<Props> = () => {
   const navigate = useNavigate()
 
-  const { jwzToken } = useZkpContext()
+  const { jwzToken, verificationSuccessTx } = useZkpContext()
   const { provider, init } = useWeb3Context()
   const { getProveIdentityTxBody } = useDemoVerifierContract()
 
@@ -62,8 +65,10 @@ const AuthConfirmation: FC<Props> = () => {
     [],
   )
 
-  const [selectedChainToPublish, setSelectedChainToPublish] =
-    useState<SUPPORTED_CHAINS>(DEFAULT_CHAIN)
+  const selectedChainToPublish = useMemo(
+    () => SUPPORTED_CHAINS_DETAILS[DEFAULT_CHAIN],
+    [],
+  )
 
   const submitZkp = useCallback(async () => {
     setIsSubmitting(true)
@@ -86,15 +91,12 @@ const AuthConfirmation: FC<Props> = () => {
         [zkProof.proof.pi_c[0], zkProof.proof.pi_c[1]],
       )
 
-      await provider?.signAndSendTx({
-        to: config?.[
-          `DEMO_VERIFIER_CONTRACT_ADDRESS_${selectedChainToPublish}`
-        ],
+      const tx = await provider?.signAndSendTx({
+        to: config?.[`DEMO_VERIFIER_CONTRACT_ADDRESS_${DEFAULT_CHAIN}`],
         ...txBody,
       })
 
-      // FIXME: remove
-      await sleep(3000)
+      verificationSuccessTx.set((tx as EthTransactionResponse).transactionHash)
 
       navigate(RoutesPaths.authSuccess)
     } catch (error) {
@@ -107,7 +109,7 @@ const AuthConfirmation: FC<Props> = () => {
     jwzToken,
     navigate,
     provider,
-    selectedChainToPublish,
+    verificationSuccessTx,
   ])
 
   const isProviderValidChain = useMemo(() => {
@@ -115,7 +117,7 @@ const AuthConfirmation: FC<Props> = () => {
 
     return (
       String(provider?.chainId).toLowerCase() ===
-      String(SUPPORTED_CHAINS_DETAILS[selectedChainToPublish].id).toLowerCase()
+      String(selectedChainToPublish.id).toLowerCase()
     )
   }, [provider, selectedChainToPublish])
 
@@ -129,7 +131,7 @@ const AuthConfirmation: FC<Props> = () => {
 
   const tryAddChain = useCallback(async () => {
     try {
-      await provider?.addChain(SUPPORTED_CHAINS_DETAILS[selectedChainToPublish])
+      await provider?.addChain(selectedChainToPublish)
     } catch (error) {
       ErrorHandler.processWithoutFeedback(error)
     }
@@ -137,9 +139,7 @@ const AuthConfirmation: FC<Props> = () => {
 
   const trySwitchChain = useCallback(async () => {
     try {
-      await provider?.switchChain(
-        Number(SUPPORTED_CHAINS_DETAILS[selectedChainToPublish].id),
-      )
+      await provider?.switchChain(Number(selectedChainToPublish.id))
     } catch (error) {
       if (error instanceof errors.ProviderChainNotFoundError) {
         await tryAddChain()
@@ -168,35 +168,18 @@ const AuthConfirmation: FC<Props> = () => {
         <Animation source={loaderJson} />
       ) : (
         <div className='auth-confirmation__card'>
-          <div className='auth-confirmation__card-header'>
-            <h5 className='auth-confirmation__card-title'>
-              {`Make it available on any chain`}
-            </h5>
-            <span className='auth-confirmation__card-subtitle'>
-              {`Your proof has been published on Polygon as default`}
-            </span>
-          </div>
-
-          <div className='auth-confirmation__chains'>
-            <div className='auth-confirmation__chain-item '>
-              <BasicSelectField
-                label={`Select chain`}
-                value={String(selectedChainToPublish)}
-                updateValue={value =>
-                  setSelectedChainToPublish(value as SUPPORTED_CHAINS)
-                }
-                valueOptions={
-                  Object.values(SUPPORTED_CHAINS)?.map?.(el => ({
-                    title: CHAINS_DETAILS_MAP[el].title,
-                    value: el,
-                    iconName: CHAINS_DETAILS_MAP[el].iconName,
-                  })) ?? []
-                }
+          <div className='auth-confirmation__chain-preview'>
+            <div className='auth-confirmation__chain-preview-icon-wrp'>
+              <Icon
+                className='auth-confirmation__chain-preview-icon'
+                name={CHAINS_DETAILS_MAP[DEFAULT_CHAIN].iconName}
               />
             </div>
-          </div>
 
-          <div className='auth-confirmation__divider' />
+            <span className='auth-confirmation__chain-preview-title'>
+              {`Your proof will be submitted on Polygon`}
+            </span>
+          </div>
 
           {provider?.isConnected ? (
             isProviderValidChain ? (
