@@ -125,6 +125,7 @@ export default defineConfig(({ mode }) => {
     },
     build: {
       target: 'esnext',
+      sourcemap: true,
       rollupOptions: {
         plugins: [
           // Enable rollup polyfills plugin
