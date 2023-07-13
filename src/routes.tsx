@@ -41,15 +41,15 @@ export const AppRoutes = () => {
 
         {
           path: '',
-          element: <Navigate replace to={RoutesPaths.authProof} />,
+          element: <Navigate replace to={`/`} />,
         },
         {
           path: '/',
-          element: <Navigate replace to={RoutesPaths.authProof} />,
+          element: <Navigate replace to={`/`} />,
         },
         {
           path: '*',
-          element: <Navigate replace to={RoutesPaths.authProof} />,
+          element: <Navigate replace to={`/`} />,
         },
       ],
     },

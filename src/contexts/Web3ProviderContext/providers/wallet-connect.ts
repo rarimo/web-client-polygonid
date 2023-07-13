@@ -1,4 +1,4 @@
-import { config, DEFAULT_CHAIN, SUPPORTED_CHAINS_DETAILS } from '@config'
+import { config, SUPPORTED_CHAINS_DETAILS } from '@config'
 import { DECIMALS } from '@distributedlab/tools'
 import {
   Chain,
@@ -74,7 +74,7 @@ export class WalletConnectEvmProvider
   async init(): Promise<void> {
     this.#provider = await EthereumProvider.init({
       projectId: config.WALLET_CONNECT_PROJECT_ID,
-      chains: [Number(SUPPORTED_CHAINS_DETAILS[DEFAULT_CHAIN].id)],
+      chains: [Number(SUPPORTED_CHAINS_DETAILS[config.DEFAULT_CHAIN].id)],
       optionalChains: Object.values(SUPPORTED_CHAINS_DETAILS).map(el =>
         Number(el.id),
       ),

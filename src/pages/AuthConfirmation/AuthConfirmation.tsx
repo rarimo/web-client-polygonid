@@ -1,11 +1,6 @@
 import './styles.scss'
 
-import {
-  config,
-  DEFAULT_CHAIN,
-  SUPPORTED_CHAINS,
-  SUPPORTED_CHAINS_DETAILS,
-} from '@config'
+import { config, SUPPORTED_CHAINS, SUPPORTED_CHAINS_DETAILS } from '@config'
 import {
   errors,
   type EthTransactionResponse,
@@ -61,7 +56,7 @@ const AuthConfirmation: FC<Props> = () => {
   )
 
   const selectedChainToPublish = useMemo(
-    () => SUPPORTED_CHAINS_DETAILS[DEFAULT_CHAIN],
+    () => SUPPORTED_CHAINS_DETAILS[config.DEFAULT_CHAIN],
     [],
   )
 
@@ -170,14 +165,16 @@ const AuthConfirmation: FC<Props> = () => {
             <div className='auth-confirmation__chain-preview-icon-wrp'>
               <Icon
                 className='auth-confirmation__chain-preview-icon'
-                name={CHAINS_DETAILS_MAP[DEFAULT_CHAIN].iconName}
+                name={CHAINS_DETAILS_MAP[config.DEFAULT_CHAIN].iconName}
               />
             </div>
 
             <span className='auth-confirmation__chain-preview-title'>
               {/*eslint-disable-next-line @typescript-eslint/ban-ts-comment*/}
               {/*@ts-ignore*/}
-              {`Your proof will be submitted on ${CHAINS_DETAILS_MAP[DEFAULT_CHAIN].title}`}
+              {`Your proof will be submitted on ${
+                CHAINS_DETAILS_MAP[config.DEFAULT_CHAIN].title
+              }`}
             </span>
           </div>
 

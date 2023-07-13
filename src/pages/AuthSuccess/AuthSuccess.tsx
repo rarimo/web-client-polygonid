@@ -1,6 +1,6 @@
 import './styles.scss'
 
-import { config, DEFAULT_CHAIN, SUPPORTED_CHAINS_DETAILS } from '@config'
+import { config, SUPPORTED_CHAINS_DETAILS } from '@config'
 import { FC, HTMLAttributes } from 'react'
 
 import { AppButton, Icon } from '@/common'
@@ -44,7 +44,7 @@ const AuthSuccess: FC<Props> = () => {
           href={provider?.getTxUrl?.(
             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-ignore
-            SUPPORTED_CHAINS_DETAILS[DEFAULT_CHAIN],
+            SUPPORTED_CHAINS_DETAILS[config.DEFAULT_CHAIN],
             verificationSuccessTx.get,
           )}
           target='_blank'
@@ -83,11 +83,11 @@ const AuthSuccess: FC<Props> = () => {
               <a
                 href={provider?.getAddressUrl?.(
                   // FIXME
-                  SUPPORTED_CHAINS_DETAILS[DEFAULT_CHAIN],
+                  SUPPORTED_CHAINS_DETAILS[config.DEFAULT_CHAIN],
                   // eslint-disable-next-line max-len
                   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
                   // @ts-ignore
-                  config?.[`DEMO_SBT_CONTRACT_ADDRESS_${DEFAULT_CHAIN}`],
+                  config?.[`DEMO_SBT_CONTRACT_ADDRESS_${config.DEFAULT_CHAIN}`],
                 )}
                 target={'_blank'}
                 rel='noreferrer'
@@ -95,7 +95,7 @@ const AuthSuccess: FC<Props> = () => {
                 {abbrCenter(
                   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
                   // @ts-ignore
-                  config?.[`DEMO_SBT_CONTRACT_ADDRESS_${DEFAULT_CHAIN}`],
+                  config?.[`DEMO_SBT_CONTRACT_ADDRESS_${config.DEFAULT_CHAIN}`],
                 )}
               </a>
             </span>

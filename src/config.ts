@@ -54,9 +54,6 @@ export const SUPPORTED_CHAINS_DETAILS: Record<SUPPORTED_CHAINS, Chain> = {
   },
 }
 
-export const DEFAULT_CHAIN = import.meta.env
-  .VITE_DEFAULT_CHAIN as SUPPORTED_CHAINS
-
 export const config = {
   API_URL: import.meta.env.VITE_API_URL,
   APP_NAME: import.meta.env.VITE_APP_NAME,
@@ -79,6 +76,8 @@ export const config = {
   ),
 
   CALLBACK_URL: import.meta.env.VITE_CALLBACK_URL,
+
+  DEFAULT_CHAIN: import.meta.env.VITE_DEFAULT_CHAIN as SUPPORTED_CHAINS,
 
   /* eslint-enable */
 } as const

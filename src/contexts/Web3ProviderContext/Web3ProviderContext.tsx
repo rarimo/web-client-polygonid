@@ -1,4 +1,4 @@
-import { DEFAULT_CHAIN, SUPPORTED_CHAINS_DETAILS } from '@config'
+import { config, SUPPORTED_CHAINS_DETAILS } from '@config'
 import {
   MetamaskProvider,
   Provider,
@@ -91,7 +91,7 @@ const Web3ProviderContextProvider: FC<Props> = ({ children }) => {
 
       const txLink = provider?.getTxUrl(
         // FIXME
-        SUPPORTED_CHAINS_DETAILS[DEFAULT_CHAIN],
+        SUPPORTED_CHAINS_DETAILS[config.DEFAULT_CHAIN],
         e.txHash,
       )
 
@@ -106,7 +106,7 @@ const Web3ProviderContextProvider: FC<Props> = ({ children }) => {
 
       const txLink = provider?.getTxUrl(
         // FIXME
-        SUPPORTED_CHAINS_DETAILS[DEFAULT_CHAIN],
+        SUPPORTED_CHAINS_DETAILS[config.DEFAULT_CHAIN],
         provider.getHashFromTx(e.txResponse),
       )
 
