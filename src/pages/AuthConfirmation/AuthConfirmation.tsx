@@ -85,7 +85,7 @@ const AuthConfirmation: FC<Props> = () => {
         // FIXME
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
-        to: config?.[`DEMO_VERIFIER_CONTRACT_ADDRESS_${DEFAULT_CHAIN}`],
+        to: config?.[`DEMO_VERIFIER_CONTRACT_ADDRESS_${config.DEFAULT_CHAIN}`],
         ...txBody,
       })
 
