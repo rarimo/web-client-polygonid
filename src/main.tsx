@@ -4,6 +4,7 @@ import '@/localization'
 import 'virtual:svg-icons-register'
 
 import { config } from '@config'
+import { StrictMode } from 'react'
 // import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 
@@ -14,5 +15,9 @@ const root = createRoot(document.getElementById('root') as Element)
 
 initApi(config.API_URL)
 
-// root.render(<StrictMode><AppRoutes /></StrictMode>)
-root.render(<AppRoutes />)
+root.render(
+  <StrictMode>
+    <AppRoutes />
+  </StrictMode>,
+)
+// root.render(<AppRoutes />)
