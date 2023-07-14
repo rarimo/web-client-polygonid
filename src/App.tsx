@@ -1,3 +1,4 @@
+import { config } from '@config'
 import { AnimatePresence } from 'framer-motion'
 import {
   FC,
@@ -27,6 +28,8 @@ const App: FC<HTMLAttributes<HTMLDivElement>> = ({ children }) => {
   const init = useCallback(async () => {
     try {
       await initWeb3()
+
+      document.title = config.APP_NAME
     } catch (error) {
       ErrorHandler.processWithoutFeedback(error)
     }
