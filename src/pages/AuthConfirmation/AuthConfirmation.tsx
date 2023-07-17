@@ -81,7 +81,7 @@ const AuthConfirmation: FC<Props> = () => {
         [zkProof.proof.pi_c[0], zkProof.proof.pi_c[1]],
       )
 
-      const tx = await provider?.signAndSendTx({
+      const tx = await provider?.signAndSendTx?.({
         // FIXME
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
@@ -124,7 +124,7 @@ const AuthConfirmation: FC<Props> = () => {
 
   const tryAddChain = useCallback(async () => {
     try {
-      await provider?.addChain(selectedChainToPublish)
+      await provider?.addChain?.(selectedChainToPublish)
     } catch (error) {
       ErrorHandler.processWithoutFeedback(error)
     }
@@ -132,7 +132,7 @@ const AuthConfirmation: FC<Props> = () => {
 
   const trySwitchChain = useCallback(async () => {
     try {
-      await provider?.switchChain(Number(selectedChainToPublish.id))
+      await provider?.switchChain?.(Number(selectedChainToPublish.id))
     } catch (error) {
       if (error instanceof errors.ProviderChainNotFoundError) {
         await tryAddChain()

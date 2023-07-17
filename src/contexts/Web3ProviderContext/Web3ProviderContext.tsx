@@ -1,5 +1,6 @@
-import { config, SUPPORTED_CHAINS_DETAILS } from '@config'
+import { SUPPORTED_CHAINS_DETAILS } from '@config'
 import {
+  IProvider,
   MetamaskProvider,
   Provider,
   ProviderDetector,
@@ -7,7 +8,6 @@ import {
   ProviderInstance,
   ProviderProxyConstructor,
   PROVIDERS,
-  RawProvider,
 } from '@distributedlab/w3p'
 import {
   createContext,
@@ -15,6 +15,7 @@ import {
   HTMLAttributes,
   memo,
   useCallback,
+  useEffect,
   useMemo,
   useState,
 } from 'react'
@@ -22,14 +23,9 @@ import { useLocalStorage } from 'react-use'
 
 import { useNotification, useProvider } from '@/hooks'
 
-import { EXTERNAL_PROVIDERS } from './enums'
-import { WalletConnectEvmProvider } from './providers'
-
 interface Web3ProviderContextValue {
-  provider?: ReturnType<typeof useProvider>
+  provider?: IProvider
   providerDetector: ProviderDetector<SUPPORTED_PROVIDERS>
-
-  isValidChain: boolean
 
   init: (providerType?: SUPPORTED_PROVIDERS) => Promise<void>
   addProvider: (provider: ProviderInstance) => void
@@ -39,8 +35,6 @@ interface Web3ProviderContextValue {
 export const web3ProviderContext = createContext<Web3ProviderContextValue>({
   provider: undefined,
   providerDetector: new ProviderDetector<SUPPORTED_PROVIDERS>(),
-
-  isValidChain: false,
 
   init: async (providerType?: SUPPORTED_PROVIDERS) => {
     throw new TypeError(`init() not implemented for ${providerType}`)
@@ -55,20 +49,19 @@ export const web3ProviderContext = createContext<Web3ProviderContextValue>({
 
 type Props = HTMLAttributes<HTMLDivElement>
 
-export type SUPPORTED_PROVIDERS = EXTERNAL_PROVIDERS | PROVIDERS
+export type SUPPORTED_PROVIDERS = PROVIDERS
 
 const SUPPORTED_PROVIDERS_MAP: {
   [key in SUPPORTED_PROVIDERS]?: ProviderProxyConstructor
 } = {
   [PROVIDERS.Metamask]: MetamaskProvider,
-  [EXTERNAL_PROVIDERS.WalletConnect]: WalletConnectEvmProvider,
 }
 
 const STORAGE_KEY = 'web3-provider'
 
 const Web3ProviderContextProvider: FC<Props> = ({ children }) => {
   const providerDetector = useMemo(
-    () => new ProviderDetector<EXTERNAL_PROVIDERS>(),
+    () => new ProviderDetector<SUPPORTED_PROVIDERS>(),
     [],
   )
 
@@ -81,42 +74,38 @@ const Web3ProviderContextProvider: FC<Props> = ({ children }) => {
   const [currentTxToastId, setCurrentTxToastId] = useState<string | number>()
   const { showTxToast, removeToast } = useNotification()
 
-  const provider = useProvider()
+  const { provider, init: initProvider } = useProvider()
 
-  const isValidChain = useMemo(() => true, [])
-
-  const handleTxSent = useCallback(
-    (e?: ProviderEventPayload) => {
-      if (!e?.txHash) return
-
-      const txLink = provider?.getTxUrl(
-        // FIXME
-        SUPPORTED_CHAINS_DETAILS[config.DEFAULT_CHAIN],
-        e.txHash,
+  const handleTxSent = useMemo(
+    () => (e?: ProviderEventPayload) => {
+      setCurrentTxToastId(
+        showTxToast('pending', {
+          txHash: e?.txHash,
+        }),
       )
-
-      setCurrentTxToastId(showTxToast('pending', txLink))
     },
-    [provider, showTxToast],
+    [showTxToast],
   )
 
-  const handleTxConfirmed = useCallback(
-    (e?: ProviderEventPayload) => {
-      if (!e?.txResponse || !provider?.getHashFromTx) return
-
-      const txLink = provider?.getTxUrl(
-        // FIXME
-        SUPPORTED_CHAINS_DETAILS[config.DEFAULT_CHAIN],
-        provider.getHashFromTx(e.txResponse),
-      )
-
+  const handleTxConfirmed = useMemo(
+    () => (e?: ProviderEventPayload) => {
       if (currentTxToastId) {
         removeToast(currentTxToastId)
       }
 
-      showTxToast('success', txLink)
+      showTxToast('success', {
+        txResponse: e?.txResponse,
+      })
     },
-    [currentTxToastId, provider, removeToast, showTxToast],
+    [currentTxToastId, removeToast, showTxToast],
+  )
+
+  const listeners = useMemo(
+    () => ({
+      onTxSent: handleTxSent,
+      onTxConfirmed: handleTxConfirmed,
+    }),
+    [handleTxConfirmed, handleTxSent],
   )
 
   const init = useCallback(
@@ -128,46 +117,54 @@ const Web3ProviderContextProvider: FC<Props> = ({ children }) => {
 
         await providerDetector.init()
 
-        await providerDetector.addProvider({
-          name: EXTERNAL_PROVIDERS.WalletConnect,
-          instance: {} as RawProvider,
-        })
-
-        // TODO: fill config and set chains details
-        Provider.setChainsDetails({})
+        Provider.setChainsDetails(
+          Object.entries(SUPPORTED_CHAINS_DETAILS).reduce(
+            (acc, [, chainDetails]) => ({
+              ...acc,
+              [chainDetails.id]: chainDetails,
+            }),
+            {},
+          ),
+        )
 
         const currentProviderType = providerType || storageState?.providerType
 
         if (!currentProviderType) return
-
-        const initializedProvider = await provider.init(
-          SUPPORTED_PROVIDERS_MAP[
-            currentProviderType
-          ] as ProviderProxyConstructor,
-          {
-            providerDetector,
-            listeners: {
-              onTxSent: handleTxSent,
-              onTxConfirmed: handleTxConfirmed,
-            },
-          },
-        )
-
-        if (!initializedProvider.isConnected) {
-          await initializedProvider?.connect?.()
-        }
       } catch (error) {
         removeStorageState()
       }
     },
     [
-      handleTxConfirmed,
-      handleTxSent,
-      provider,
       providerDetector,
       removeStorageState,
       setStorageState,
       storageState?.providerType,
+    ],
+  )
+
+  const updateProviderState = useCallback(
+    async (providerType: SUPPORTED_PROVIDERS) => {
+      if (provider?.isConnected && provider?.providerType === providerType)
+        return
+
+      const initializedProvider = await initProvider(
+        SUPPORTED_PROVIDERS_MAP[providerType] as ProviderProxyConstructor,
+        {
+          providerDetector,
+          listeners,
+        },
+      )
+
+      if (!initializedProvider.isConnected) {
+        await initializedProvider?.connect?.()
+      }
+    },
+    [
+      initProvider,
+      listeners,
+      provider?.isConnected,
+      provider?.providerType,
+      providerDetector,
     ],
   )
 
@@ -192,13 +189,17 @@ const Web3ProviderContextProvider: FC<Props> = ({ children }) => {
     handleDisconnect()
   }, [handleDisconnect, provider])
 
+  useEffect(() => {
+    if (!storageState?.providerType) return
+
+    updateProviderState(storageState.providerType)
+  }, [storageState?.providerType, updateProviderState])
+
   return (
     <web3ProviderContext.Provider
       value={{
         provider,
         providerDetector,
-
-        isValidChain,
 
         init,
         addProvider,
