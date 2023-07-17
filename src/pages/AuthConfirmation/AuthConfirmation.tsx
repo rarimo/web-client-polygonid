@@ -140,7 +140,6 @@ const AuthConfirmation: FC<Props> = () => {
 
   return (
     <div className='auth-confirmation'>
-      {provider?.chainId}
       <div className='auth-confirmation__header'>
         <div className='auth-confirmation__header-icon-wrp'>
           <Icon
