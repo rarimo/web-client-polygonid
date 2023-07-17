@@ -63,7 +63,7 @@ export const config = {
   WALLET_CONNECT_PROJECT_ID: import.meta.env.VITE_WALLET_CONNECT_PROJECT_ID,
   AUTH_BJJ_CREDENTIAL_HASH: import.meta.env.VITE_AUTH_BJJ_CREDENTIAL_HASH,
 
-  ...Object.values(SUPPORTED_CHAINS).reduce(
+  ...(Object.values(SUPPORTED_CHAINS).reduce(
     (acc, curr) => ({
       ...acc,
       /* eslint-disable max-len */
@@ -73,7 +73,11 @@ export const config = {
       [`DEMO_SBT_CONTRACT_ADDRESS_${curr}`]: import.meta.env[`VITE_DEMO_SBT_CONTRACT_ADDRESS_${curr}`] || '',
     }),
     {},
-  ),
+  ) as {
+    [k in
+      | `DEMO_VERIFIER_CONTRACT_ADDRESS_${SUPPORTED_CHAINS}`
+      | `STATE_V2_CONTRACT_ADDRESS_${SUPPORTED_CHAINS}`]: string
+  }),
 
   CALLBACK_URL: import.meta.env.VITE_CALLBACK_URL,
 

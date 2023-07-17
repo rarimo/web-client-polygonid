@@ -82,9 +82,6 @@ const AuthConfirmation: FC<Props> = () => {
       )
 
       const tx = await provider?.signAndSendTx?.({
-        // FIXME
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
         to: config?.[`DEMO_VERIFIER_CONTRACT_ADDRESS_${config.DEFAULT_CHAIN}`],
         ...txBody,
       })
@@ -105,14 +102,13 @@ const AuthConfirmation: FC<Props> = () => {
     verificationSuccessTx,
   ])
 
-  const isProviderValidChain = useMemo(() => {
-    if (!provider) return false
+  const providerChainId = useMemo(() => provider?.chainId, [provider?.chainId])
 
-    return (
-      String(provider?.chainId).toLowerCase() ===
-      String(selectedChainToPublish.id).toLowerCase()
-    )
-  }, [provider, selectedChainToPublish])
+  const isProviderValidChain = useMemo(() => {
+    if (!providerChainId) return false
+
+    return +providerChainId === +selectedChainToPublish.id
+  }, [providerChainId, selectedChainToPublish.id])
 
   const connectWallet = useCallback(async () => {
     try {
@@ -144,6 +140,7 @@ const AuthConfirmation: FC<Props> = () => {
 
   return (
     <div className='auth-confirmation'>
+      {provider?.chainId}
       <div className='auth-confirmation__header'>
         <div className='auth-confirmation__header-icon-wrp'>
           <Icon
@@ -170,8 +167,6 @@ const AuthConfirmation: FC<Props> = () => {
             </div>
 
             <span className='auth-confirmation__chain-preview-title'>
-              {/*eslint-disable-next-line @typescript-eslint/ban-ts-comment*/}
-              {/*@ts-ignore*/}
               {`Your proof will be submitted on ${
                 CHAINS_DETAILS_MAP[config.DEFAULT_CHAIN].title
               }`}
