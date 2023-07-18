@@ -68,15 +68,15 @@ export const config = {
       ...acc,
       /* eslint-disable max-len */
       /* prettier-ignore */
-      [`DEMO_VERIFIER_CONTRACT_ADDRESS_${curr}`]: import.meta.env[`VITE_DEMO_VERIFIER_CONTRACT_ADDRESS_${curr}`] || '',
+      [`QUERY_VERIFIER_CONTRACT_ADDRESS_${curr}`]: import.meta.env[`VITE_QUERY_VERIFIER_CONTRACT_ADDRESS_${curr}`] || '',
       /* prettier-ignore */
-      [`DEMO_SBT_CONTRACT_ADDRESS_${curr}`]: import.meta.env[`VITE_DEMO_SBT_CONTRACT_ADDRESS_${curr}`] || '',
+      [`VERIFIED_SBT_CONTRACT_ADDRESS_${curr}`]: import.meta.env[`VITE_VERIFIED_SBT_CONTRACT_ADDRESS_${curr}`] || '',
     }),
     {},
   ) as {
     [k in
-      | `DEMO_VERIFIER_CONTRACT_ADDRESS_${SUPPORTED_CHAINS}`
-      | `STATE_V2_CONTRACT_ADDRESS_${SUPPORTED_CHAINS}`]: string
+      | `QUERY_VERIFIER_CONTRACT_ADDRESS_${SUPPORTED_CHAINS}`
+      | `VERIFIED_SBT_CONTRACT_ADDRESS_${SUPPORTED_CHAINS}`]: string
   }),
 
   CALLBACK_URL: import.meta.env.VITE_CALLBACK_URL,

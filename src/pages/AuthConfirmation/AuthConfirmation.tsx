@@ -82,7 +82,7 @@ const AuthConfirmation: FC<Props> = () => {
       )
 
       const tx = await provider?.signAndSendTx?.({
-        to: config?.[`DEMO_VERIFIER_CONTRACT_ADDRESS_${config.DEFAULT_CHAIN}`],
+        to: config?.[`QUERY_VERIFIER_CONTRACT_ADDRESS_${config.DEFAULT_CHAIN}`],
         ...txBody,
       })
 

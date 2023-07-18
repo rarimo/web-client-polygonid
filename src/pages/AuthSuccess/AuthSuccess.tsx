@@ -42,8 +42,6 @@ const AuthSuccess: FC<Props> = () => {
         <a
           className='auth-success__copy-field-wrp'
           href={provider?.getTxUrl?.(
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-ignore
             SUPPORTED_CHAINS_DETAILS[config.DEFAULT_CHAIN],
             verificationSuccessTx.get,
           )}
@@ -82,20 +80,18 @@ const AuthSuccess: FC<Props> = () => {
             <span className='auth-success__minted-nft-card-subtitle'>
               <a
                 href={provider?.getAddressUrl?.(
-                  // FIXME
                   SUPPORTED_CHAINS_DETAILS[config.DEFAULT_CHAIN],
-                  // eslint-disable-next-line max-len
-                  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                  // @ts-ignore
-                  config?.[`DEMO_SBT_CONTRACT_ADDRESS_${config.DEFAULT_CHAIN}`],
+                  config?.[
+                    `VERIFIED_SBT_CONTRACT_ADDRESS_${config.DEFAULT_CHAIN}`
+                  ],
                 )}
                 target={'_blank'}
                 rel='noreferrer'
               >
                 {abbrCenter(
-                  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                  // @ts-ignore
-                  config?.[`DEMO_SBT_CONTRACT_ADDRESS_${config.DEFAULT_CHAIN}`],
+                  config?.[
+                    `VERIFIED_SBT_CONTRACT_ADDRESS_${config.DEFAULT_CHAIN}`
+                  ],
                 )}
               </a>
             </span>
