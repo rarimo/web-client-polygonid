@@ -14,7 +14,9 @@ enum VERIFIER_INTERNAL_ERRORS {
 export class ErrorHandler {
   static process(error: Error | unknown, errorMessage = ''): void {
     const { msgTranslation, msgType } = ErrorHandler._getErrorMessage(error)
-    bus.emit(msgType as BUS_EVENTS, msgTranslation || errorMessage)
+    if (msgTranslation) {
+      bus.emit(msgType as BUS_EVENTS, msgTranslation || errorMessage)
+    }
 
     ErrorHandler.processWithoutFeedback(error)
   }
@@ -32,12 +34,15 @@ export class ErrorHandler {
 
     if (error instanceof Error) {
       switch (error.constructor) {
+        case errors.ProviderUserRejectedRequest:
+          errorMessage = ''
+          break
         default: {
           if ('error' in error) {
             const currentError = error.error as RuntimeError
             const errorString = currentError?.message?.split(': ')[2]
 
-            switch (error?.error?.constructor) {
+            switch (currentError?.constructor) {
               case errors.ProviderInternalError:
                 if (
                   errorString ===

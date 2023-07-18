@@ -119,7 +119,7 @@ const AuthConfirmation: FC<Props> = () => {
     try {
       await init(PROVIDERS.Metamask)
     } catch (error) {
-      ErrorHandler.processWithoutFeedback(error)
+      ErrorHandler.process(error)
     }
   }, [init])
 
