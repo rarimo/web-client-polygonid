@@ -4,7 +4,7 @@
 
 import { Contract, Signer, utils } from "ethers";
 import type { Provider } from "@ethersproject/providers";
-import type { DemoVerifier, DemoVerifierInterface } from "../DemoVerifier";
+import type { QueryVerifier, QueryVerifierInterface } from "../QueryVerifier";
 
 const _abi = [
   {
@@ -119,7 +119,7 @@ const _abi = [
             type: "uint256",
           },
         ],
-        internalType: "struct IDemoVerifier.VerificationInfo",
+        internalType: "struct IQueryVerifier.VerificationInfo",
         name: "",
         type: "tuple",
       },
@@ -304,7 +304,7 @@ const _abi = [
     name: "sbtContract",
     outputs: [
       {
-        internalType: "contract IDemoSBT",
+        internalType: "contract IVerifiedSBT",
         name: "",
         type: "address",
       },
@@ -472,15 +472,15 @@ const _abi = [
   },
 ] as const;
 
-export class DemoVerifier__factory {
+export class QueryVerifier__factory {
   static readonly abi = _abi;
-  static createInterface(): DemoVerifierInterface {
-    return new utils.Interface(_abi) as DemoVerifierInterface;
+  static createInterface(): QueryVerifierInterface {
+    return new utils.Interface(_abi) as QueryVerifierInterface;
   }
   static connect(
     address: string,
     signerOrProvider: Signer | Provider
-  ): DemoVerifier {
-    return new Contract(address, _abi, signerOrProvider) as DemoVerifier;
+  ): QueryVerifier {
+    return new Contract(address, _abi, signerOrProvider) as QueryVerifier;
   }
 }

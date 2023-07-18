@@ -1,11 +1,11 @@
 import { BigNumberish } from 'ethers'
 import { useCallback, useMemo } from 'react'
 
-import { DemoVerifier__factory } from '@/types'
+import { QueryVerifier__factory } from '@/types'
 
-export const useDemoVerifierContract = () => {
+export const useQueryVerifierContract = () => {
   const contractInterface = useMemo(
-    () => DemoVerifier__factory.createInterface(),
+    () => QueryVerifier__factory.createInterface(),
     [],
   )
 

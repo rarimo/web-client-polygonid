@@ -1,1 +1,1 @@
-export * from './use-demo-verifier-contract'
+export * from './use-query-verifier-contract'

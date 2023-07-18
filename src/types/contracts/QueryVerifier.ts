@@ -26,7 +26,7 @@ import type {
   OnEvent,
 } from "./common";
 
-export declare namespace IDemoVerifier {
+export declare namespace IQueryVerifier {
   export type VerificationInfoStruct = {
     senderAddr: string;
     mintedTokenId: BigNumberish;
@@ -65,7 +65,7 @@ export declare namespace ICircuitValidator {
   };
 }
 
-export interface DemoVerifierInterface extends utils.Interface {
+export interface QueryVerifierInterface extends utils.Interface {
   functions: {
     "AGE_VERIFY_REQUEST_ID()": FunctionFragment;
     "addressToUserId(address)": FunctionFragment;
@@ -290,12 +290,12 @@ export type VerifiedEvent = TypedEvent<
 
 export type VerifiedEventFilter = TypedEventFilter<VerifiedEvent>;
 
-export interface DemoVerifier extends BaseContract {
+export interface QueryVerifier extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
   attach(addressOrName: string): this;
   deployed(): Promise<this>;
 
-  interface: DemoVerifierInterface;
+  interface: QueryVerifierInterface;
 
   queryFilter<TEvent extends TypedEvent>(
     event: TypedEventFilter<TEvent>,
@@ -331,7 +331,7 @@ export interface DemoVerifier extends BaseContract {
     getVerificationInfo(
       userId_: BigNumberish,
       overrides?: CallOverrides
-    ): Promise<[IDemoVerifier.VerificationInfoStructOutput]>;
+    ): Promise<[IQueryVerifier.VerificationInfoStructOutput]>;
 
     getZKPRequest(
       requestId: BigNumberish,
@@ -425,7 +425,7 @@ export interface DemoVerifier extends BaseContract {
   getVerificationInfo(
     userId_: BigNumberish,
     overrides?: CallOverrides
-  ): Promise<IDemoVerifier.VerificationInfoStructOutput>;
+  ): Promise<IQueryVerifier.VerificationInfoStructOutput>;
 
   getZKPRequest(
     requestId: BigNumberish,
@@ -522,7 +522,7 @@ export interface DemoVerifier extends BaseContract {
     getVerificationInfo(
       userId_: BigNumberish,
       overrides?: CallOverrides
-    ): Promise<IDemoVerifier.VerificationInfoStructOutput>;
+    ): Promise<IQueryVerifier.VerificationInfoStructOutput>;
 
     getZKPRequest(
       requestId: BigNumberish,

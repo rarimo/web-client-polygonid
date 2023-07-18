@@ -15,7 +15,7 @@ import { Animation, AppButton, Icon } from '@/common'
 import { useWeb3Context, useZkpContext } from '@/contexts'
 import { ICON_NAMES, RoutesPaths } from '@/enums'
 import { ErrorHandler } from '@/helpers'
-import { useDemoVerifierContract } from '@/hooks/contracts'
+import { useQueryVerifierContract } from '@/hooks/contracts'
 
 type Props = HTMLAttributes<HTMLDivElement>
 
@@ -30,7 +30,7 @@ const AuthConfirmation: FC<Props> = () => {
 
   const { jwzToken, verificationSuccessTx } = useZkpContext()
   const { provider, init } = useWeb3Context()
-  const { getProveIdentityTxBody } = useDemoVerifierContract()
+  const { getProveIdentityTxBody } = useQueryVerifierContract()
 
   const [isSubmitting, setIsSubmitting] = useState(false)
 

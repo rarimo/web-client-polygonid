@@ -111,7 +111,7 @@
             "type": "uint256"
           }
         ],
-        "internalType": "struct IDemoVerifier.VerificationInfo",
+        "internalType": "struct IQueryVerifier.VerificationInfo",
         "name": "",
         "type": "tuple"
       }
@@ -296,7 +296,7 @@
     "name": "sbtContract",
     "outputs": [
       {
-        "internalType": "contract IDemoSBT",
+        "internalType": "contract IVerifiedSBT",
         "name": "",
         "type": "address"
       }
