@@ -40,14 +40,11 @@ To setup working contracts, copy .env.example to .env and fill it with your data
 
 set contract addresses with following format:
 ```yaml
-VITE_DEMO_VERIFIER_CONTRACT_ADDRESS_[CHAIN_NAME]=0x000000000
-VITE_DEMO_SBT_CONTRACT_ADDRESS_[CHAIN_NAME]=0x000000000
+VITE_QUERY_VERIFIER_CONTRACT_ADDRESS_[CHAIN_NAME]=0x000000000
+VITE_VERIFIED_SBT_CONTRACT_ADDRESS_[CHAIN_NAME]=0x000000000
 ```
 
-where CHAIN_NAME is one of the following:
-- SEPOLIA
-- POLYGON
-- POLYGON_TESTNET
+where CHAIN_NAME is one of the [SUPPORTED_CHAINS](./src/config.ts)
 
 then set currently used chain with:
 ```yaml

@@ -36,6 +36,11 @@ const AuthConfirmation: FC<Props> = () => {
 
   const CHAINS_DETAILS_MAP = useMemo<Record<SUPPORTED_CHAINS, ChainToPublish>>(
     () => ({
+      [SUPPORTED_CHAINS.MAINNET]: {
+        title: 'Mainnet',
+        value: SUPPORTED_CHAINS.MAINNET,
+        iconName: ICON_NAMES.ethereum,
+      },
       [SUPPORTED_CHAINS.POLYGON]: {
         title: 'Polygon chain',
         value: SUPPORTED_CHAINS.POLYGON,

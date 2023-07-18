@@ -6,12 +6,26 @@ import { LogLevelDesc } from 'loglevel'
 import packageJson from '../package.json'
 
 export enum SUPPORTED_CHAINS {
+  MAINNET = 'MAINNET',
   SEPOLIA = 'SEPOLIA',
   POLYGON = 'POLYGON',
   POLYGON_TESTNET = 'POLYGON_TESTNET',
 }
 
 export const SUPPORTED_CHAINS_DETAILS: Record<SUPPORTED_CHAINS, Chain> = {
+  [SUPPORTED_CHAINS.MAINNET]: {
+    id: '1',
+    name: 'Ethereum',
+    rpcUrl: 'https://mainnet.infura.io/v3/',
+    explorerUrl: 'https://etherscan.io',
+    token: {
+      name: 'ETH',
+      symbol: 'ETH',
+      decimals: 18,
+    },
+    type: CHAIN_TYPES.EVM,
+    icon: '',
+  },
   [SUPPORTED_CHAINS.SEPOLIA]: {
     id: '11155111',
     name: 'Sepolia',
