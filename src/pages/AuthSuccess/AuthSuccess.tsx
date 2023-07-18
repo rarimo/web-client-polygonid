@@ -60,13 +60,13 @@ const AuthSuccess: FC<Props> = () => {
 
       <div className='auth-success__minted-nft'>
         <span className='auth-success__minted-nft-title'>
-          {`You’ve received an SBT / NFT `}
+          {`You’ve received the SBT `}
         </span>
 
         <div className='auth-success__minted-nft-card'>
           <div className='auth-success__minted-nft-card-img-wrp'>
             <img
-              src='/images/minted-nft-stub.png'
+              src='/images/minted-sbt-stub.jpeg'
               alt=''
               className='auth-success__minted-nft-card-img'
             />
@@ -74,7 +74,7 @@ const AuthSuccess: FC<Props> = () => {
 
           <div className='auth-success__minted-nft-card-details'>
             <span className='auth-success__minted-nft-card-title'>
-              {`POH Early Adopter`}
+              {`Polygon ID × Rarimo`}
             </span>
 
             <span className='auth-success__minted-nft-card-subtitle'>

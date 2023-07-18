@@ -30,6 +30,7 @@
   },
   "verifier-errors": {
     "conflict-addresses-identity": "This address has already been used to verify another identity. Please use another address.",
+    "conflict-identity-id": "This identity has already been verified by another address. Please use another identity.",
     "empty-state": "The state doesn't exist in the state contract. Please wait a couple of minutes and try again later."
   }
 }

@@ -6,8 +6,9 @@ import { bus, BUS_EVENTS } from '@/helpers'
 import i18n from '@/localization'
 
 enum VERIFIER_INTERNAL_ERRORS {
-  conflictAddressesIdentity = `execution reverted: DemoVerifier: current address has already been used to verify another identity`,
-  emptyState = `execution reverted: QueryMTPValidatorOffChain: state doesn't exist in state contract`,
+  conflictAddressesIdentity = `current address has already been used to verify another identity`,
+  conflictIdentityId = 'identity with this identifier has already been verified',
+  emptyState = `state doesn't exist in state contract`,
 }
 
 export class ErrorHandler {
@@ -34,11 +35,12 @@ export class ErrorHandler {
         default: {
           if ('error' in error) {
             const currentError = error.error as RuntimeError
+            const errorString = currentError?.message?.split(': ')[2]
 
             switch (error?.error?.constructor) {
               case errors.ProviderInternalError:
                 if (
-                  currentError?.message ===
+                  errorString ===
                   VERIFIER_INTERNAL_ERRORS.conflictAddressesIdentity
                 ) {
                   errorMessage = i18n.t(
@@ -46,9 +48,14 @@ export class ErrorHandler {
                   )
                   msgType = 'warning'
                 } else if (
-                  currentError?.message === VERIFIER_INTERNAL_ERRORS.emptyState
+                  errorString === VERIFIER_INTERNAL_ERRORS.emptyState
                 ) {
                   errorMessage = i18n.t('verifier-errors.empty-state')
+                  msgType = 'warning'
+                } else if (
+                  errorString === VERIFIER_INTERNAL_ERRORS.conflictIdentityId
+                ) {
+                  errorMessage = i18n.t('verifier-errors.conflict-identity-id')
                   msgType = 'warning'
                 }
                 break
