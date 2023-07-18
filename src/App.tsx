@@ -82,7 +82,7 @@ const App: FC<HTMLAttributes<HTMLDivElement>> = ({ children }) => {
           </div>
         </AnimatePresence>
       </Suspense>
-      <ToastContainer />
+      <ToastContainer newestOnTop={true} />
     </div>
   )
 }
