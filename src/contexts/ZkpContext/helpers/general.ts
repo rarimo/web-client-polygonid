@@ -1,3 +1,4 @@
+import { config } from '@config'
 import { v4 as uuidv4 } from 'uuid'
 
 import { api } from '@/api'
@@ -39,7 +40,7 @@ export const buildRequestOffChain = async (
   const request = createRequestOffChain(
     'SBT airdrop', // FIXME
     '', // FIXME
-    'did:polygonid:polygon:mumbai:2qDpUjL74PwJxkLg1cDhFzCEx8887CNHC3GD91EGny', // FIXME
+    config.REQUEST_BUILD_SENDER,
     `${callbackBaseUrl}/integrations/verify-proxy/v1/public/verify/callback/${data.verification_id}`,
   )
 

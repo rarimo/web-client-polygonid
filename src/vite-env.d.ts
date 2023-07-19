@@ -11,6 +11,8 @@ interface ImportMetaEnv {
 
   VITE_AUTH_BJJ_CREDENTIAL_HASH: string
 
+  VITE_REQUEST_BUILD_SENDER: string
+
   VITE_DEFAULT_CHAIN: string
 
   VITE_CALLBACK_URL: string

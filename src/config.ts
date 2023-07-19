@@ -76,6 +76,7 @@ export const config = {
 
   WALLET_CONNECT_PROJECT_ID: import.meta.env.VITE_WALLET_CONNECT_PROJECT_ID,
   AUTH_BJJ_CREDENTIAL_HASH: import.meta.env.VITE_AUTH_BJJ_CREDENTIAL_HASH,
+  REQUEST_BUILD_SENDER: import.meta.env.VITE_REQUEST_BUILD_SENDER,
 
   ...(Object.values(SUPPORTED_CHAINS).reduce(
     (acc, curr) => ({
