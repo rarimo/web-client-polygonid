@@ -16,6 +16,8 @@ interface ImportMetaEnv {
   VITE_DEFAULT_CHAIN: string
 
   VITE_CALLBACK_URL: string
+
+  VITE_SUPPORTED_CHAIN_DETAILS: string
 }
 
 interface Document {

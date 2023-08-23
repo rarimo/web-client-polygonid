@@ -24,8 +24,6 @@
     "@distributedlab/tools": "^0.2.0-rc.25",
     "@distributedlab/w3p": "^0.2.0-rc.25",
     "@iden3/js-jwz": "^1.0.0-beta.2",
-    "@walletconnect/ethereum-provider": "^2.9.0",
-    "@walletconnect/modal": "^2.5.9",
     "downshift": "^7.1.2",
     "ejc": "^1.0.4",
     "ethers": "^5.7.0",

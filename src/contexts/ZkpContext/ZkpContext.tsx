@@ -2,6 +2,7 @@ import { config } from '@config'
 import { Token } from '@iden3/js-jwz'
 import { createContext, FC, HTMLAttributes, useCallback, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useEffectOnce } from 'react-use'
 
 import { ClaimTypes } from '@/contexts/ZkpContext/enums'
 import {
@@ -75,6 +76,12 @@ const ZkpContextProvider: FC<Props> = ({ children, ...rest }) => {
 
     startListeningProve(proveRequest.jwtToken, proveRequest.request.id)
   }, [startListeningProve])
+
+  useEffectOnce(() => {
+    if (!jwzToken && !proveRequest && !verificationSuccessTx) {
+      navigate(RoutesPaths.app)
+    }
+  })
 
   return (
     <zkpContext.Provider

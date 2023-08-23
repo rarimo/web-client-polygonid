@@ -1,6 +1,6 @@
 import './styles.scss'
 
-import { config, SUPPORTED_CHAINS_DETAILS } from '@config'
+import { config } from '@config'
 import { FC, HTMLAttributes } from 'react'
 
 import { AppButton, Icon } from '@/common'
@@ -42,7 +42,7 @@ const AuthSuccess: FC<Props> = () => {
         <a
           className='auth-success__copy-field-wrp'
           href={provider?.getTxUrl?.(
-            SUPPORTED_CHAINS_DETAILS[config.DEFAULT_CHAIN],
+            config.SUPPORTED_CHAINS_DETAILS[config.DEFAULT_CHAIN],
             verificationSuccessTx.get,
           )}
           target='_blank'
@@ -77,24 +77,30 @@ const AuthSuccess: FC<Props> = () => {
               {`PolygonID × Rarimo`}
             </span>
 
-            <span className='auth-success__minted-nft-card-subtitle'>
-              <a
-                href={provider?.getAddressUrl?.(
-                  SUPPORTED_CHAINS_DETAILS[config.DEFAULT_CHAIN],
-                  config?.[
-                    `VERIFIED_SBT_CONTRACT_ADDRESS_${config.DEFAULT_CHAIN}`
-                  ],
-                )}
-                target={'_blank'}
-                rel='noreferrer'
-              >
-                {abbrCenter(
-                  config?.[
-                    `VERIFIED_SBT_CONTRACT_ADDRESS_${config.DEFAULT_CHAIN}`
-                  ],
-                )}
-              </a>
-            </span>
+            {config?.[
+              `VERIFIED_SBT_CONTRACT_ADDRESS_${config.DEFAULT_CHAIN}`
+            ] ? (
+              <span className='auth-success__minted-nft-card-subtitle'>
+                <a
+                  href={provider?.getAddressUrl?.(
+                    config.SUPPORTED_CHAINS_DETAILS[config.DEFAULT_CHAIN],
+                    config[
+                      `VERIFIED_SBT_CONTRACT_ADDRESS_${config.DEFAULT_CHAIN}`
+                    ] ?? '',
+                  )}
+                  target={'_blank'}
+                  rel='noreferrer'
+                >
+                  {abbrCenter(
+                    config[
+                      `VERIFIED_SBT_CONTRACT_ADDRESS_${config.DEFAULT_CHAIN}`
+                    ] ?? '',
+                  )}
+                </a>
+              </span>
+            ) : (
+              <></>
+            )}
           </div>
         </div>
       </div>

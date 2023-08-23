@@ -1,11 +1,9 @@
-import { SUPPORTED_CHAINS_DETAILS } from '@config'
 import {
   errors,
-  IProvider,
   MetamaskProvider,
   Provider,
   ProviderDetector,
-  type ProviderEventPayload,
+  // type ProviderEventPayload,
   ProviderInstance,
   ProviderProxyConstructor,
   PROVIDERS,
@@ -17,14 +15,18 @@ import {
   memo,
   useCallback,
   useMemo,
-  useState,
+  // useState,
 } from 'react'
 import { useLocalStorage } from 'react-use'
 
-import { useNotification, useProvider } from '@/hooks'
+import { config } from '@/config'
+import {
+  // useNotification,
+  useProvider,
+} from '@/hooks'
 
 interface Web3ProviderContextValue {
-  provider?: IProvider
+  provider?: ReturnType<typeof useProvider>
   providerDetector: ProviderDetector<SUPPORTED_PROVIDERS>
 
   init: (providerType?: SUPPORTED_PROVIDERS) => Promise<void>
@@ -71,34 +73,34 @@ const Web3ProviderContextProvider: FC<Props> = ({ children }) => {
     providerType: undefined,
   })
 
-  const [currentTxToastId, setCurrentTxToastId] = useState<string | number>()
-  const { showTxToast, removeToast } = useNotification()
+  // const [currentTxToastId, setCurrentTxToastId] = useState<string | number>()
+  // const { showTxToast, removeToast } = useNotification()
 
-  const { provider, init: initProvider } = useProvider()
+  const provider = useProvider()
 
-  const handleTxSent = useMemo(
-    () => (e?: ProviderEventPayload) => {
-      setCurrentTxToastId(
-        showTxToast('pending', {
-          txHash: e?.txHash,
-        }),
-      )
-    },
-    [showTxToast],
-  )
+  // const handleTxSent = useMemo(
+  //   () => (e?: ProviderEventPayload) => {
+  //     setCurrentTxToastId(
+  //       showTxToast('pending', {
+  //         txHash: e?.txHash,
+  //       }),
+  //     )
+  //   },
+  //   [showTxToast],
+  // )
 
-  const handleTxConfirmed = useMemo(
-    () => (e?: ProviderEventPayload) => {
-      if (currentTxToastId) {
-        removeToast(currentTxToastId)
-      }
-
-      showTxToast('success', {
-        txResponse: e?.txResponse,
-      })
-    },
-    [currentTxToastId, removeToast, showTxToast],
-  )
+  // const handleTxConfirmed = useMemo(
+  //   () => (e?: ProviderEventPayload) => {
+  //     if (currentTxToastId) {
+  //       removeToast(currentTxToastId)
+  //     }
+  //
+  //     showTxToast('success', {
+  //       txResponse: e?.txResponse,
+  //     })
+  //   },
+  //   [currentTxToastId, removeToast, showTxToast],
+  // )
 
   const disconnect = useCallback(async () => {
     try {
@@ -112,11 +114,15 @@ const Web3ProviderContextProvider: FC<Props> = ({ children }) => {
 
   const listeners = useMemo(
     () => ({
-      onTxSent: handleTxSent,
-      onTxConfirmed: handleTxConfirmed,
+      // onTxSent: handleTxSent,
+      // onTxConfirmed: handleTxConfirmed,
       onDisconnect: disconnect,
     }),
-    [disconnect, handleTxConfirmed, handleTxSent],
+    [
+      disconnect,
+      // handleTxConfirmed,
+      // handleTxSent
+    ],
   )
 
   const init = useCallback(
@@ -129,7 +135,7 @@ const Web3ProviderContextProvider: FC<Props> = ({ children }) => {
         await providerDetector.init()
 
         Provider.setChainsDetails(
-          Object.entries(SUPPORTED_CHAINS_DETAILS).reduce(
+          Object.entries(config.SUPPORTED_CHAINS_DETAILS).reduce(
             (acc, [, chainDetails]) => ({
               ...acc,
               [chainDetails.id]: chainDetails,
@@ -142,7 +148,7 @@ const Web3ProviderContextProvider: FC<Props> = ({ children }) => {
 
         if (!currentProviderType) return
 
-        const initializedProvider = await initProvider(
+        const initializedProvider = await provider.init(
           SUPPORTED_PROVIDERS_MAP[
             currentProviderType
           ] as ProviderProxyConstructor,
@@ -161,11 +167,13 @@ const Web3ProviderContextProvider: FC<Props> = ({ children }) => {
         if (error.error instanceof errors.ProviderUserRejectedRequest) {
           await disconnect()
         }
+
+        throw error
       }
     },
     [
+      provider,
       disconnect,
-      initProvider,
       listeners,
       providerDetector,
       setStorageState,

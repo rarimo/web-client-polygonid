@@ -4,7 +4,7 @@ import react from '@vitejs/plugin-react'
 import * as fs from 'fs'
 import * as path from 'path'
 import { visualizer } from 'rollup-plugin-visualizer'
-import { defineConfig, loadEnv } from 'vite'
+import { defineConfig, loadEnv, splitVendorChunkPlugin } from 'vite'
 import { checker } from 'vite-plugin-checker'
 import { nodePolyfills } from 'vite-plugin-node-polyfills'
 import { createSvgIconsPlugin } from 'vite-plugin-svg-icons'
@@ -18,10 +18,10 @@ const root = path.resolve(__dirname, resolveApp('src'))
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '')
 
-  const isProduction = env.VITE_ENVIRONMENT === 'production'
-  const isDevelopment = env.VITE_ENVIRONMENT === 'development'
+  // const isProduction = env.VITE_ENVIRONMENT === 'production'
+  // const isDevelopment = env.VITE_ENVIRONMENT === 'development'
   const isAnalyze = env.VITE_ENVIRONMENT === 'analyze'
-  const buildVersion = env.VITE_APP_BUILD_VERSION
+  // const buildVersion = env.VITE_APP_BUILD_VERSION
 
   return {
     ...(env.VITE_PORT
@@ -31,8 +31,12 @@ export default defineConfig(({ mode }) => {
           },
         }
       : {}),
+    define: {
+      'process.env': {},
+    },
     publicDir: 'static',
     plugins: [
+      splitVendorChunkPlugin(),
       react(),
 
       tsconfigPaths(),
@@ -79,31 +83,12 @@ export default defineConfig(({ mode }) => {
         '@config': `${root}/config.ts`,
         '@static': `${root}/../static`,
 
-        // ethers: path.resolve(
-        //   __dirname,
-        //   'node_modules/ethers/dist/ethers.esm.js',
-        // ),
         util: path.resolve(__dirname, 'node_modules/util/util.js'),
         ejc: path.resolve(__dirname, 'node_modules/ejs/ejs.min.js'),
-        snarkjs: path.resolve(
-          __dirname,
-          'node_modules/snarkjs/build/snarkjs.min.js',
-        ),
-        '@iden3/js-iden3-core': path.resolve(
-          __dirname,
-          'node_modules/@iden3/js-iden3-core/dist/esm_esbuild/index.js',
-        ),
+
         '@iden3/js-jwz': path.resolve(
           __dirname,
           'node_modules/@iden3/js-jwz/dist/esm_esbuild/index.js',
-        ),
-        '@iden3/js-crypto': path.resolve(
-          __dirname,
-          'node_modules/@iden3/js-crypto/dist/esm_esbuild/index.js',
-        ),
-        '@iden3/js-jsonld-merklization': path.resolve(
-          __dirname,
-          'node_modules/@iden3/js-jsonld-merklization/dist/esm_esbuild/index.js',
         ),
         'near-api-js': 'near-api-js/dist/near-api-js.js',
       },
@@ -132,6 +117,18 @@ export default defineConfig(({ mode }) => {
           // used during production bundling
           nodePolyfills(),
         ],
+
+        output: {
+          manualChunks: {
+            lodash: ['lodash'],
+            react: ['react', 'react-dom'],
+            nearApiJs: ['near-api-js'],
+            iden3JsJwz: ['@iden3/js-jwz'],
+          },
+        },
+      },
+      commonjsOptions: {
+        transformMixedEsModules: true,
       },
     },
   }
