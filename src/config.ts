@@ -15,11 +15,22 @@ type ContractAddresses = {
     | `VERIFIED_SBT_CONTRACT_ADDRESS_${SUPPORTED_CHAINS}`]: string
 }
 
+export const RELAYER_RELAY_CHAIN_NAMES: Record<SUPPORTED_CHAINS, string> = {
+  SEPOLIA: 'Sepolia',
+  POLYGON: '',
+  POLYGON_TESTNET: '',
+  MAINNET: '',
+  ARBITRUM: '',
+  XDC: '',
+}
+
 export const config = {
   API_URL: import.meta.env.VITE_API_URL,
   APP_NAME: import.meta.env.VITE_APP_NAME,
   LOG_LEVEL: 'trace' as LogLevelDesc,
   BUILD_VERSION: packageJson.version || import.meta.env.VITE_APP_BUILD_VERSION,
+
+  RARIMO_CORE_API_URL: import.meta.env.VITE_RARIMO_CORE_API_URL,
 
   WALLET_CONNECT_PROJECT_ID: import.meta.env.VITE_WALLET_CONNECT_PROJECT_ID,
   AUTH_BJJ_CREDENTIAL_HASH: import.meta.env.VITE_AUTH_BJJ_CREDENTIAL_HASH,
@@ -45,6 +56,8 @@ export const config = {
   WALLET_CONNECT_PROJECT_ID: string
   AUTH_BJJ_CREDENTIAL_HASH: string
   REQUEST_BUILD_SENDER: string
+
+  RARIMO_CORE_API_URL: string
 
   SUPPORTED_CHAINS_DETAILS: Record<
     keyof typeof FALLBACK_SUPPORTED_CHAINS,
