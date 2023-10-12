@@ -1,6 +1,7 @@
 import { config, RELAYER_RELAY_CHAIN_NAMES } from '@config'
+import { JsonApiError } from '@distributedlab/jac'
 import { Token, type ZKProof } from '@iden3/js-jwz'
-import { BigNumber, utils } from 'ethers'
+import { BigNumber } from 'ethers'
 import { createContext, FC, HTMLAttributes, useCallback, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useEffectOnce } from 'react-use'
@@ -67,10 +68,8 @@ const ZkpContextProvider: FC<Props> = ({ children, ...rest }) => {
   const isClaimStateValid = useCallback(
     async (claimStateHex: string) => {
       try {
-        const { data } = await rarimoCoreApi.post<{
-          code: number
-          message: string
-          details: string[]
+        await rarimoCoreApi.post<{
+          tx: string
         }>(`/integrations/relayer/relay`, {
           body: {
             state: claimStateHex,
@@ -78,11 +77,21 @@ const ZkpContextProvider: FC<Props> = ({ children, ...rest }) => {
           },
         })
 
-        return validateStateStatusCode(String(data.code))
+        return true
       } catch (error) {
-        if (!(error instanceof Error) || !('code' in error)) throw error
+        if (!(error instanceof JsonApiError)) throw error
 
-        return validateStateStatusCode(String(error.code))
+        if (
+          !(
+            error?.originalError?.response?.data &&
+            'code' in error.originalError.response.data
+          )
+        )
+          throw error
+
+        return validateStateStatusCode(
+          String(error.originalError.response.data?.code),
+        )
       }
     },
     [validateStateStatusCode],
@@ -107,15 +116,11 @@ const ZkpContextProvider: FC<Props> = ({ children, ...rest }) => {
         issuerClaimStateHex,
       )
 
-      console.log('here 1')
-
       await sleep(500)
 
       const isIssuerClaimNonRevStateHexValid = await isClaimStateValid(
         issuerClaimNonRevStateHex,
       )
-
-      console.log('here 2')
 
       return isIssuerClaimStateHexValid || isIssuerClaimNonRevStateHexValid
     },
@@ -139,7 +144,6 @@ const ZkpContextProvider: FC<Props> = ({ children, ...rest }) => {
       setJwzToken(jwzToken)
 
       if (!(await isStateTransitionValid(jwzToken))) {
-        console.log('in here')
         bus.emit(
           BUS_EVENTS.warning,
           `Something wen wrong, looks like you need to regenerate proof, please reload page and try again`,
@@ -147,8 +151,6 @@ const ZkpContextProvider: FC<Props> = ({ children, ...rest }) => {
 
         return
       }
-
-      console.log('here')
 
       navigate(RoutesPaths.authConfirmation)
     },
