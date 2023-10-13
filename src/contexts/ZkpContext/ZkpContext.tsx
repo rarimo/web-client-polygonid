@@ -1,12 +1,13 @@
 import { config, RELAYER_RELAY_CHAIN_NAMES } from '@config'
 import { JsonApiError } from '@distributedlab/jac'
 import { Token, type ZKProof } from '@iden3/js-jwz'
-import { BigNumber } from 'ethers'
+import { BigNumber, providers } from 'ethers'
 import { createContext, FC, HTMLAttributes, useCallback, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useEffectOnce } from 'react-use'
 
 import { rarimoCoreApi } from '@/api'
+import { useWeb3Context } from '@/contexts'
 import { ClaimTypes } from '@/contexts/ZkpContext/enums'
 import {
   buildRequestOffChain,
@@ -58,6 +59,8 @@ const ZkpContextProvider: FC<Props> = ({ children, ...rest }) => {
   const [proveRequest, setProveRequest] = useState('')
   const [verificationSuccessTx, setVerificationSuccessTx] = useState<string>('')
 
+  const { provider } = useWeb3Context()
+
   const validateStateStatusCode = useCallback((statusCode: string) => {
     switch (statusCode) {
       case RelayerRelayErrorCodes.AlreadyTransited:
@@ -72,7 +75,7 @@ const ZkpContextProvider: FC<Props> = ({ children, ...rest }) => {
   const isClaimStateValid = useCallback(
     async (claimStateHex: string) => {
       try {
-        await rarimoCoreApi.post<{
+        const { data } = await rarimoCoreApi.post<{
           tx: string
         }>(`/integrations/relayer/relay`, {
           body: {
@@ -81,7 +84,24 @@ const ZkpContextProvider: FC<Props> = ({ children, ...rest }) => {
           },
         })
 
-        return true
+        // TODO: check tx status using ethers js
+
+        const rawProvider = provider?.rawProvider as
+          | providers.Web3Provider
+          | undefined
+
+        const txReceipt = await rawProvider?.getTransactionReceipt(data.tx)
+
+        let triesCount = 0
+
+        do {
+          if (Number(txReceipt?.status) === 1) return true
+
+          triesCount += 1
+          await sleep(5_000)
+        } while (triesCount < (60_000 * 5) / 5_000)
+
+        return false
       } catch (error) {
         if (!(error instanceof JsonApiError)) throw error
 
@@ -98,7 +118,7 @@ const ZkpContextProvider: FC<Props> = ({ children, ...rest }) => {
         )
       }
     },
-    [validateStateStatusCode],
+    [provider?.rawProvider, validateStateStatusCode],
   )
 
   const isStateTransitionValid = useCallback(
