@@ -18,7 +18,7 @@ const AuthProof: FC<Props> = () => {
 
   return (
     <div className='auth-proof'>
-      {!isPending ? (
+      {isPending ? (
         <>
           <div className='auth-proof__header'>
             <h2 className='auth-proof__header-title'>{`Check Transition states`}</h2>
