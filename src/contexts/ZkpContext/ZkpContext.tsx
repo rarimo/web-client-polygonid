@@ -112,14 +112,29 @@ const ZkpContextProvider: FC<Props> = ({ children, ...rest }) => {
         issuerClaimNonRevState,
       ).toHexString()
 
-      const isIssuerClaimStateHexValid = await isClaimStateValid(
-        issuerClaimStateHex,
-      )
+      let isIssuerClaimStateHexValid = false
+      let isIssuerClaimNonRevStateHexValid = false
+      let triesCount = 0
 
-      await sleep(500)
+      do {
+        isIssuerClaimStateHexValid = await isClaimStateValid(
+          issuerClaimStateHex,
+        )
 
-      const isIssuerClaimNonRevStateHexValid = await isClaimStateValid(
-        issuerClaimNonRevStateHex,
+        await sleep(500)
+
+        isIssuerClaimNonRevStateHexValid = await isClaimStateValid(
+          issuerClaimNonRevStateHex,
+        )
+
+        if (!isIssuerClaimStateHexValid && !isIssuerClaimNonRevStateHexValid) {
+          await sleep(5_000)
+          triesCount++
+        }
+      } while (
+        !isIssuerClaimStateHexValid &&
+        !isIssuerClaimNonRevStateHexValid &&
+        triesCount < (60_000 * 5) / 5_000
       )
 
       return isIssuerClaimStateHexValid || isIssuerClaimNonRevStateHexValid

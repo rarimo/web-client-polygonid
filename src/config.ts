@@ -68,9 +68,6 @@ export const config = {
   DEFAULT_CHAIN: SUPPORTED_CHAINS
 } & Partial<ContractAddresses>
 
-Object.assign(config, _mapEnvCfg(import.meta.env))
-Object.assign(config, _mapEnvCfg(window.document.ENV))
-
 Object.assign(config, {
   ...(Object.keys(config.SUPPORTED_CHAINS_DETAILS).reduce(
     (acc, curr) => ({
@@ -88,6 +85,9 @@ Object.assign(config, {
       | `VERIFIED_SBT_CONTRACT_ADDRESS_${SUPPORTED_CHAINS}`]: string
   }),
 })
+
+Object.assign(config, _mapEnvCfg(import.meta.env))
+Object.assign(config, _mapEnvCfg(window.document.ENV))
 
 function _mapEnvCfg(env: ImportMetaEnv | typeof window.document.ENV): {
   [k: string]: string | boolean | undefined
