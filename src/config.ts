@@ -15,11 +15,22 @@ type ContractAddresses = {
     | `VERIFIED_SBT_CONTRACT_ADDRESS_${SUPPORTED_CHAINS}`]: string
 }
 
+export const RELAYER_RELAY_CHAIN_NAMES: Record<SUPPORTED_CHAINS, string> = {
+  SEPOLIA: 'Sepolia',
+  POLYGON: '',
+  POLYGON_TESTNET: '',
+  MAINNET: '',
+  ARBITRUM: '',
+  XDC: '',
+}
+
 export const config = {
   API_URL: import.meta.env.VITE_API_URL,
   APP_NAME: import.meta.env.VITE_APP_NAME,
   LOG_LEVEL: 'trace' as LogLevelDesc,
   BUILD_VERSION: packageJson.version || import.meta.env.VITE_APP_BUILD_VERSION,
+
+  RARIMO_CORE_API_URL: import.meta.env.VITE_RARIMO_CORE_API_URL,
 
   WALLET_CONNECT_PROJECT_ID: import.meta.env.VITE_WALLET_CONNECT_PROJECT_ID,
   AUTH_BJJ_CREDENTIAL_HASH: import.meta.env.VITE_AUTH_BJJ_CREDENTIAL_HASH,
@@ -46,6 +57,8 @@ export const config = {
   AUTH_BJJ_CREDENTIAL_HASH: string
   REQUEST_BUILD_SENDER: string
 
+  RARIMO_CORE_API_URL: string
+
   SUPPORTED_CHAINS_DETAILS: Record<
     keyof typeof FALLBACK_SUPPORTED_CHAINS,
     Chain
@@ -54,9 +67,6 @@ export const config = {
   CALLBACK_URL: string
   DEFAULT_CHAIN: SUPPORTED_CHAINS
 } & Partial<ContractAddresses>
-
-Object.assign(config, _mapEnvCfg(import.meta.env))
-Object.assign(config, _mapEnvCfg(window.document.ENV))
 
 Object.assign(config, {
   ...(Object.keys(config.SUPPORTED_CHAINS_DETAILS).reduce(
@@ -75,6 +85,9 @@ Object.assign(config, {
       | `VERIFIED_SBT_CONTRACT_ADDRESS_${SUPPORTED_CHAINS}`]: string
   }),
 })
+
+Object.assign(config, _mapEnvCfg(import.meta.env))
+Object.assign(config, _mapEnvCfg(window.document.ENV))
 
 function _mapEnvCfg(env: ImportMetaEnv | typeof window.document.ENV): {
   [k: string]: string | boolean | undefined

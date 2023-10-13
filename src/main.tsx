@@ -5,15 +5,15 @@ import 'virtual:svg-icons-register'
 
 import { config } from '@config'
 import { StrictMode } from 'react'
-// import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 
-import { initApi } from '@/api'
+import { initApi, initRarimoCoreApi } from '@/api'
 import { AppRoutes } from '@/routes'
 
 const root = createRoot(document.getElementById('root') as Element)
 
 initApi(config.API_URL)
+initRarimoCoreApi(config.RARIMO_CORE_API_URL)
 
 root.render(
   <StrictMode>
