@@ -71,6 +71,11 @@
   line-height: 1.5;
 }
 
+.auth-proof__loader-wrp {
+
+  @include card;
+}
+
 .auth-proof__loader {
   align-self: center;
   margin: auto;
