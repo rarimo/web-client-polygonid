@@ -1,12 +1,11 @@
 import { config, RELAYER_RELAY_CHAIN_NAMES } from '@config'
-import { JsonApiError } from '@distributedlab/jac'
+import { fetcher, FetcherError } from '@distributedlab/fetcher'
 import { Token, type ZKProof } from '@iden3/js-jwz'
 import { BigNumber, providers } from 'ethers'
 import { createContext, FC, HTMLAttributes, useCallback, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useEffectOnce } from 'react-use'
 
-import { rarimoCoreApi } from '@/api'
 import { useWeb3Context } from '@/contexts'
 import { ClaimTypes } from '@/contexts/ZkpContext/enums'
 import {
@@ -75,47 +74,32 @@ const ZkpContextProvider: FC<Props> = ({ children, ...rest }) => {
   const isClaimStateValid = useCallback(
     async (claimStateHex: string) => {
       try {
-        const { data } = await rarimoCoreApi.post<{
+        const { data } = await fetcher.post<{
           tx: string
-        }>(`/integrations/relayer/relay`, {
+        }>(`${config.RARIMO_CORE_API_URL}/integrations/relayer/relay`, {
           body: {
             state: claimStateHex,
             chain: RELAYER_RELAY_CHAIN_NAMES[config.DEFAULT_CHAIN],
           },
         })
 
-        // TODO: check tx status using ethers js
+        const rawProvider = new providers.Web3Provider(
+          provider?.rawProvider as providers.ExternalProvider,
+        )
 
-        const rawProvider = provider?.rawProvider as
-          | providers.Web3Provider
-          | undefined
+        if (!data?.tx) throw new Error('tx is not defined')
 
-        const txReceipt = await rawProvider?.getTransactionReceipt(data.tx)
+        const txReceipt = await rawProvider?.getTransaction(data?.tx)
 
-        let triesCount = 0
-
-        do {
-          if (Number(txReceipt?.status) === 1) return true
-
-          triesCount += 1
-          await sleep(5_000)
-        } while (triesCount < (60_000 * 5) / 5_000)
+        await txReceipt?.wait?.()
 
         return false
       } catch (error) {
-        if (!(error instanceof JsonApiError)) throw error
+        if (!(error instanceof FetcherError)) throw error
 
-        if (
-          !(
-            error?.originalError?.response?.data &&
-            'code' in error.originalError.response.data
-          )
-        )
-          throw error
+        if (!('code' in error.response.data)) throw error
 
-        return validateStateStatusCode(
-          String(error.originalError.response.data?.code),
-        )
+        return validateStateStatusCode(String(error.response.data.code))
       }
     },
     [provider?.rawProvider, validateStateStatusCode],
