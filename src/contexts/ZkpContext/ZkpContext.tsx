@@ -16,6 +16,8 @@ import { RoutesPaths } from '@/enums'
 import { bus, BUS_EVENTS, sleep } from '@/helpers'
 
 interface ZkpContextValue {
+  isPending?: boolean
+
   jwzToken?: Token
   proveRequest: string
   verificationSuccessTx: {
@@ -49,6 +51,8 @@ enum RelayerRelayErrorCodes {
 
 const ZkpContextProvider: FC<Props> = ({ children, ...rest }) => {
   const navigate = useNavigate()
+
+  const [isPending, setIsPending] = useState(false)
 
   const [jwzToken, setJwzToken] = useState<Token>()
   const [proveRequest, setProveRequest] = useState('')
@@ -158,6 +162,8 @@ const ZkpContextProvider: FC<Props> = ({ children, ...rest }) => {
       const jwzToken = await Token.parse(jwz)
       setJwzToken(jwzToken)
 
+      setIsPending(true)
+
       if (!(await isStateTransitionValid(jwzToken))) {
         bus.emit(
           BUS_EVENTS.warning,
@@ -192,6 +198,8 @@ const ZkpContextProvider: FC<Props> = ({ children, ...rest }) => {
   return (
     <zkpContext.Provider
       value={{
+        isPending,
+
         jwzToken,
         proveRequest,
 
