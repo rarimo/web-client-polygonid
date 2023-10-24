@@ -8,10 +8,7 @@ import { useEffectOnce } from 'react-use'
 
 import { useWeb3Context } from '@/contexts'
 import { ClaimTypes } from '@/contexts/ZkpContext/enums'
-import {
-  buildRequestOffChain,
-  getJWZOffChain,
-} from '@/contexts/ZkpContext/helpers'
+import { buildRequestOnChain, getJWZ } from '@/contexts/ZkpContext/helpers'
 import { RoutesPaths } from '@/enums'
 import { bus, BUS_EVENTS, sleep } from '@/helpers'
 
@@ -156,7 +153,7 @@ const ZkpContextProvider: FC<Props> = ({ children, ...rest }) => {
 
       do {
         try {
-          jwz = await getJWZOffChain(jwt, verificationId)
+          jwz = await getJWZ(jwt, verificationId)
         } catch (error) {
           /* empty */
         }
@@ -183,7 +180,7 @@ const ZkpContextProvider: FC<Props> = ({ children, ...rest }) => {
   )
 
   const createProveRequest = useCallback(async () => {
-    const proveRequest = await buildRequestOffChain(
+    const proveRequest = await buildRequestOnChain(
       config.CALLBACK_URL,
       ClaimTypes.KYCAgeCredential,
     )
