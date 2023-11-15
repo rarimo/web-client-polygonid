@@ -108,8 +108,8 @@ const ZkpContextProvider: FC<Props> = ({ children, ...rest }) => {
 
       const zkProof = zkProofPayload.body.scope[0] as ZKProof
 
-      const issuerClaimState = zkProof.pub_signals[4]
-      const issuerClaimNonRevState = zkProof.pub_signals[6]
+      const issuerClaimState = zkProof.pub_signals[7]
+      const issuerClaimNonRevState = zkProof.pub_signals[9]
 
       const issuerClaimStateHex = BigNumber.from(issuerClaimState).toHexString()
 
