@@ -68,6 +68,30 @@ const ZkpContextProvider: FC<Props> = ({ children, ...rest }) => {
     }
   }, [])
 
+  const waitTx = useCallback(
+    async (txHash: string) => {
+      const rawProvider = new providers.Web3Provider(
+        provider?.rawProvider as providers.ExternalProvider,
+      )
+
+      const txReceipt = await rawProvider?.getTransaction(txHash)
+
+      await txReceipt?.wait?.()
+    },
+    [provider?.rawProvider],
+  )
+
+  const handleStateValidatingError = useCallback(
+    (error: unknown) => {
+      if (!(error instanceof FetcherError)) throw error
+
+      if (!('code' in error.response.data)) throw error
+
+      return validateStateStatusCode(String(error.response.data.code))
+    },
+    [validateStateStatusCode],
+  )
+
   const isClaimStateValid = useCallback(
     async (claimStateHex: string) => {
       try {
@@ -80,45 +104,47 @@ const ZkpContextProvider: FC<Props> = ({ children, ...rest }) => {
           },
         })
 
-        const rawProvider = new providers.Web3Provider(
-          provider?.rawProvider as providers.ExternalProvider,
-        )
-
         if (!data?.tx) throw new Error('tx is not defined')
 
-        const txReceipt = await rawProvider?.getTransaction(data?.tx)
-
-        await txReceipt?.wait?.()
+        await waitTx(data?.tx)
 
         return false
       } catch (error) {
-        if (!(error instanceof FetcherError)) throw error
-
-        if (!('code' in error.response.data)) throw error
-
-        return validateStateStatusCode(String(error.response.data.code))
+        return handleStateValidatingError(error)
       }
     },
-    [provider?.rawProvider, validateStateStatusCode],
+    [handleStateValidatingError, waitTx],
   )
 
-  const isStateTransitionValid = useCallback(
-    async (jwzToken: Token): Promise<boolean> => {
-      const zkProofPayload = JSON.parse(jwzToken.getPayload())
+  const isGistStateValid = useCallback(
+    async (gistStateHash: string) => {
+      try {
+        const { data } = await fetcher.post<{
+          tx: string
+        }>(`${config.RARIMO_CORE_API_URL}/integrations/relayer/gist/relay`, {
+          body: {
+            hash: gistStateHash,
+            chain: RELAYER_RELAY_CHAIN_NAMES[config.DEFAULT_CHAIN],
+          },
+        })
 
-      const zkProof = zkProofPayload.body.scope[0] as ZKProof
+        if (!data?.tx) throw new Error('tx is not defined')
 
-      const issuerClaimState = zkProof.pub_signals[7]
-      const issuerClaimNonRevState = zkProof.pub_signals[9]
+        await waitTx(data?.tx)
 
-      const issuerClaimStateHex = BigNumber.from(issuerClaimState).toHexString()
+        return false
+      } catch (error) {
+        return handleStateValidatingError(error)
+      }
+    },
+    [handleStateValidatingError, waitTx],
+  )
 
-      const issuerClaimNonRevStateHex = BigNumber.from(
-        issuerClaimNonRevState,
-      ).toHexString()
-
+  const getClaimStatesValidity = useCallback(
+    async (issuerClaimStateHex: string, issuerClaimNonRevStateHex: string) => {
       let isIssuerClaimStateHexValid = false
       let isIssuerClaimNonRevStateHexValid = false
+
       let triesCount = 0
 
       do {
@@ -142,9 +168,72 @@ const ZkpContextProvider: FC<Props> = ({ children, ...rest }) => {
         triesCount < (60_000 * 5) / 5_000
       )
 
-      return isIssuerClaimStateHexValid || isIssuerClaimNonRevStateHexValid
+      return {
+        isIssuerClaimStateHexValid,
+        isIssuerClaimNonRevStateHexValid,
+      }
     },
     [isClaimStateValid],
+  )
+
+  const getGistStateValidity = useCallback(
+    async (issuerGistHashStateHex: string) => {
+      let isIssuerGistHashStateHexValid = false
+
+      let triesCount = 0
+
+      do {
+        isIssuerGistHashStateHexValid = await isGistStateValid(
+          issuerGistHashStateHex,
+        )
+
+        if (!isIssuerGistHashStateHexValid) {
+          await sleep(5_000)
+          triesCount++
+        }
+      } while (
+        !isIssuerGistHashStateHexValid &&
+        triesCount < (60_000 * 5) / 5_000
+      )
+
+      return isIssuerGistHashStateHexValid
+    },
+    [isGistStateValid],
+  )
+
+  const isStateTransitionValid = useCallback(
+    async (jwzToken: Token): Promise<boolean> => {
+      const zkProofPayload = JSON.parse(jwzToken.getPayload())
+
+      const zkProof = zkProofPayload.body.scope[0] as ZKProof
+
+      const issuerClaimState = zkProof.pub_signals[7]
+      const issuerClaimNonRevState = zkProof.pub_signals[9]
+      const issuerGistHash = zkProof.pub_signals[5]
+
+      const issuerClaimStateHex = BigNumber.from(issuerClaimState).toHexString()
+
+      const issuerClaimNonRevStateHex = BigNumber.from(
+        issuerClaimNonRevState,
+      ).toHexString()
+
+      const issuerGistHashStateHex =
+        BigNumber.from(issuerGistHash).toHexString()
+
+      const [
+        { isIssuerClaimStateHexValid, isIssuerClaimNonRevStateHexValid },
+        isIssuerGistHashStateHexValid,
+      ] = await Promise.all([
+        getClaimStatesValidity(issuerClaimStateHex, issuerClaimNonRevStateHex),
+        getGistStateValidity(issuerGistHashStateHex),
+      ])
+
+      return (
+        (isIssuerClaimStateHexValid || isIssuerClaimNonRevStateHexValid) &&
+        isIssuerGistHashStateHexValid
+      )
+    },
+    [getClaimStatesValidity, getGistStateValidity],
   )
 
   const startListeningProve = useCallback(
