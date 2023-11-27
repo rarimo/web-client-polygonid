@@ -97,9 +97,9 @@ const ZkpContextProvider: FC<Props> = ({ children, ...rest }) => {
       try {
         const { data } = await fetcher.post<{
           tx: string
-        }>(`${config.RARIMO_CORE_API_URL}/integrations/relayer/relay`, {
+        }>(`${config.RARIMO_CORE_API_URL}/integrations/relayer/state/relay`, {
           body: {
-            state: claimStateHex,
+            hash: claimStateHex,
             chain: RELAYER_RELAY_CHAIN_NAMES[config.DEFAULT_CHAIN],
           },
         })

@@ -15,9 +15,12 @@ const root = createRoot(document.getElementById('root') as Element)
 initApi(config.API_URL)
 initRarimoCoreApi(config.RARIMO_CORE_API_URL)
 
-root.render(
-  <StrictMode>
-    <AppRoutes />
-  </StrictMode>,
-)
-// root.render(<AppRoutes />)
+if (import.meta.env.MODE === 'development') {
+  root.render(<AppRoutes />)
+} else {
+  root.render(
+    <StrictMode>
+      <AppRoutes />
+    </StrictMode>,
+  )
+}
