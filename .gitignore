@@ -28,5 +28,6 @@ stats.html
 
 .env
 .env.production
+.env.development
 .env.analyze
 tsconfig.tsbuildinfo
