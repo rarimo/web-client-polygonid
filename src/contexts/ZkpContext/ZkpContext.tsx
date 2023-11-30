@@ -220,13 +220,17 @@ const ZkpContextProvider: FC<Props> = ({ children, ...rest }) => {
       const issuerGistHashStateHex =
         BigNumber.from(issuerGistHash).toHexString()
 
-      const [
-        { isIssuerClaimStateHexValid, isIssuerClaimNonRevStateHexValid },
-        isIssuerGistHashStateHexValid,
-      ] = await Promise.all([
-        getClaimStatesValidity(issuerClaimStateHex, issuerClaimNonRevStateHex),
-        getGistStateValidity(issuerGistHashStateHex),
-      ])
+      const { isIssuerClaimStateHexValid, isIssuerClaimNonRevStateHexValid } =
+        await getClaimStatesValidity(
+          issuerClaimStateHex,
+          issuerClaimNonRevStateHex,
+        )
+
+      await sleep(5_000)
+
+      const isIssuerGistHashStateHexValid = await getGistStateValidity(
+        issuerGistHashStateHex,
+      )
 
       return (
         (isIssuerClaimStateHexValid || isIssuerClaimNonRevStateHexValid) &&
