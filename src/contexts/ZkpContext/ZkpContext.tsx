@@ -83,9 +83,9 @@ const ZkpContextProvider: FC<Props> = ({ children, ...rest }) => {
 
   const handleStateValidatingError = useCallback(
     (error: unknown) => {
-      if (!(error instanceof FetcherError)) throw error
+      if (!(error instanceof FetcherError)) return false
 
-      if (!('code' in error.response.data)) throw error
+      if (!('code' in error.response.data)) return false
 
       return validateStateStatusCode(String(error.response.data.code))
     },
@@ -165,7 +165,7 @@ const ZkpContextProvider: FC<Props> = ({ children, ...rest }) => {
       } while (
         !isIssuerClaimStateHexValid &&
         !isIssuerClaimNonRevStateHexValid &&
-        triesCount < (60_000 * 5) / 5_000
+        Number(triesCount) < Math.trunc((60_000 * 5) / 5_000)
       )
 
       return {
@@ -193,7 +193,7 @@ const ZkpContextProvider: FC<Props> = ({ children, ...rest }) => {
         }
       } while (
         !isIssuerGistHashStateHexValid &&
-        triesCount < (60_000 * 5) / 5_000
+        Number(triesCount) < Math.trunc((60_000 * 5) / 5_000)
       )
 
       return isIssuerGistHashStateHexValid
